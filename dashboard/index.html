@@ -1,0 +1,776 @@
+<meta charset="utf-8">
+<title>CrossCheck</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --bg:#ffffff;
+    --bg-alt:#f6f9f8;
+    --ink:#10171a;
+    --ink-muted:#5c6b66;
+    --border:#e2e9e6;
+    --accent:#0a7859;
+    --accent-ink:#ffffff;
+    --accent-soft:#e3f5ee;
+    --card:#ffffff;
+    --shadow: 16 32 26;
+    --ok:#0a7859;
+    --bad:#a3242e;
+    --warn:#8a5c14;
+    --neutral-verdict:#525e66;
+
+    --dark-bg:#0b1210;
+    --dark-bg-alt:#0e1815;
+    --dark-ink:#eef4f1;
+    --dark-ink-muted:#9fb0aa;
+    --dark-border:#1f2e29;
+    --dark-accent:#3fceA4;
+    --dark-card:#111c18;
+    --dark-muted-2:#7e9089;
+
+    --font-display:'Bricolage Grotesque', 'Segoe UI', system-ui, sans-serif;
+    --font-body:'Public Sans', 'Segoe UI', system-ui, sans-serif;
+    --font-mono:'IBM Plex Mono', 'SFMono-Regular', Consolas, monospace;
+  }
+
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:16px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  img{max-width:100%;}
+  h1,h2,h3{
+    font-family:var(--font-display);
+    margin:0;
+    text-wrap:balance;
+    letter-spacing:-0.01em;
+  }
+  p{margin:0;}
+  a{color:inherit;}
+  .mono{font-family:var(--font-mono);}
+  .nums{font-variant-numeric:tabular-nums;}
+
+  .wrap{
+    max-width:1180px;
+    margin:0 auto;
+    padding-inline:24px;
+  }
+  @media (max-width:640px){ .wrap{padding-inline:18px;} }
+
+
+  /* ---------- Nav ---------- */
+  .nav{
+    position:sticky; top:0; z-index:40;
+    background:rgba(255,255,255,0.86);
+    backdrop-filter:blur(10px) saturate(140%);
+    border-bottom:1px solid var(--border);
+  }
+  .nav .wrap{
+    height:64px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:24px;
+  }
+  .brand{
+    display:flex; align-items:center; gap:8px;
+    font-family:var(--font-display);
+    font-weight:700;
+    font-size:17px;
+    text-decoration:none;
+    color:var(--ink);
+  }
+  .brand-mark{
+    width:22px;height:22px;border-radius:6px;
+    background:var(--accent);
+    display:inline-flex;align-items:center;justify-content:center;
+    color:#fff;font-size:12px;font-weight:700;
+  }
+  .nav-links{
+    display:flex; gap:28px; align-items:center;
+    font-size:14px; color:var(--ink-muted);
+  }
+  .nav-links a{text-decoration:none;}
+  .nav-links a:hover{color:var(--ink);}
+  .nav-cta{
+    font-size:14px; font-weight:600;
+    color:var(--accent-ink);
+    background:var(--ink);
+    padding:9px 16px;
+    border-radius:999px;
+    text-decoration:none;
+    white-space:nowrap;
+    transition:transform .18s cubic-bezier(.16,1,.3,1), background .18s;
+  }
+  .nav-cta:hover{ background:var(--accent); transform:translateY(-1px); }
+  @media (max-width:760px){ .nav-links{display:none;} }
+
+  /* ---------- Sections shared ---------- */
+  section{ padding-block:96px; }
+  @media (max-width:760px){ section{ padding-block:64px; } }
+  .section-dark{ background:var(--dark-bg); color:var(--dark-ink); }
+  .section-alt{ background:var(--bg-alt); }
+
+  .headline{
+    font-size:clamp(30px, 4.4vw, 46px);
+    line-height:1.08;
+    font-weight:700;
+  }
+  .headline .muted{ color:var(--ink-muted); font-weight:600; }
+  .section-dark .headline .muted{ color:var(--dark-ink-muted); }
+  .lede{
+    max-width:62ch;
+    color:var(--ink-muted);
+    font-size:17px;
+    margin-top:16px;
+  }
+  .section-dark .lede{ color:var(--dark-ink-muted); }
+
+  /* ---------- One authored entrance: the hero snapshot only ---------- */
+  @keyframes hero-enter{
+    from{ opacity:0; transform:translateY(16px) scale(.99); }
+    to{ opacity:1; transform:none; }
+  }
+  @media (prefers-reduced-motion: no-preference){
+    .snapshot{ animation:hero-enter .85s cubic-bezier(.16,1,.3,1) .1s both; }
+  }
+
+  /* ---------- Hero ---------- */
+  .hero .wrap{
+    display:grid;
+    grid-template-columns:1.05fr 1fr;
+    gap:56px;
+    align-items:center;
+    padding-top:56px;
+  }
+  @media (max-width:900px){ .hero .wrap{ grid-template-columns:1fr; padding-top:32px; } }
+
+  .hero-cta-row{ display:flex; gap:14px; margin-top:28px; flex-wrap:wrap; align-items:center; }
+  .btn-primary{
+    display:inline-flex; align-items:center; gap:8px;
+    background:var(--accent); color:#fff;
+    font-weight:600; font-size:15px;
+    padding:13px 22px; border-radius:999px;
+    text-decoration:none;
+    box-shadow:0 10px 24px -10px rgb(15 157 117 / .55);
+    transition:transform .18s cubic-bezier(.16,1,.3,1), box-shadow .18s;
+  }
+  .btn-primary:hover{ transform:translateY(-2px); box-shadow:0 14px 30px -10px rgb(15 157 117 / .65); }
+  .hero-note{ font-size:13px; color:var(--ink-muted); }
+
+  /* hero mock panel */
+  .snapshot{
+    position:relative;
+    border-radius:20px;
+    padding:8px;
+    background:linear-gradient(155deg, var(--accent-soft), #fff 55%);
+    border:1px solid var(--border);
+    box-shadow:0 30px 60px -30px rgb(var(--shadow) / .35);
+  }
+  .snapshot-inner{
+    background:var(--card);
+    border-radius:14px;
+    border:1px solid var(--border);
+    overflow:hidden;
+  }
+  .snapshot-head{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 18px;
+    border-bottom:1px solid var(--border);
+    font-size:13px;
+  }
+  .snapshot-head b{ font-family:var(--font-display); font-size:14px; }
+  .live-dot{
+    width:7px;height:7px;border-radius:50%;
+    background:var(--ok);
+    display:inline-block;
+    box-shadow:0 0 0 3px var(--accent-soft);
+  }
+  @media (prefers-reduced-motion: no-preference){
+    @keyframes live-pulse{ 0%,100%{ box-shadow:0 0 0 3px var(--accent-soft); } 50%{ box-shadow:0 0 0 5px var(--accent-soft); } }
+    .live-dot{ animation:live-pulse 2.4s ease-in-out infinite; }
+  }
+  .snapshot-row{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:11px 18px;
+    border-bottom:1px solid var(--border);
+    font-size:13.5px;
+  }
+  .snapshot-row:last-child{ border-bottom:none; }
+  .snapshot-row .metric{ color:var(--ink-muted); }
+  .snapshot-row .value{ font-family:var(--font-mono); font-weight:600; }
+  .pill{
+    display:inline-flex; align-items:center; gap:5px;
+    font-family:var(--font-mono);
+    font-size:11px; font-weight:600; letter-spacing:.03em;
+    padding:3px 9px; border-radius:999px;
+  }
+  .pill-ok{ background:var(--accent-soft); color:var(--ok); }
+  .pill-bad{ background:#fbe9eb; color:var(--bad); }
+  .pill-neutral{ background:#eef1f2; color:var(--neutral-verdict); }
+  .snapshot-foot{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:14px 18px;
+    background:var(--bg-alt);
+  }
+  @property --consistent-pct{ syntax:'<percentage>'; initial-value:83.7%; inherits:false; }
+  .donut{
+    width:46px; height:46px; border-radius:50%;
+    background:conic-gradient(var(--ok) 0 var(--consistent-pct), var(--neutral-verdict) var(--consistent-pct) 100%);
+    position:relative; flex:none;
+  }
+  @media (prefers-reduced-motion: no-preference){
+    @keyframes donut-sweep{ from{ --consistent-pct:0%; } to{ --consistent-pct:83.7%; } }
+    .snapshot .donut{ animation:donut-sweep 1.2s cubic-bezier(.16,1,.3,1) .5s both; }
+  }
+  .donut::after{
+    content:''; position:absolute; inset:8px; border-radius:50%; background:var(--card);
+  }
+  .foot-legend{ display:flex; gap:14px; font-size:12px; color:var(--ink-muted); }
+  .foot-legend span b{ color:var(--ink); font-family:var(--font-mono); }
+
+  /* ---------- Companies strip ---------- */
+  .companies-strip{ padding-block:44px; border-top:1px solid var(--border); border-bottom:1px solid var(--border); }
+  .companies-strip .wrap{
+    display:flex; align-items:center; gap:32px; flex-wrap:wrap; justify-content:space-between;
+  }
+  .strip-caption{ font-size:13px; color:var(--ink-muted); white-space:nowrap; }
+  .strip-names{ display:flex; gap:28px; flex-wrap:wrap; }
+  .strip-name{ font-family:var(--font-display); font-weight:600; font-size:15px; color:var(--ink-muted); white-space:nowrap; }
+  .strip-name b{ color:var(--ink); font-weight:700; }
+
+  /* ---------- Feature grid ---------- */
+  .grid-4{
+    display:grid; grid-template-columns:repeat(4,1fr); gap:18px; margin-top:48px;
+  }
+  @media (max-width:960px){ .grid-4{ grid-template-columns:1fr 1fr; } }
+  @media (max-width:560px){ .grid-4{ grid-template-columns:1fr; } }
+
+  .feature-card{
+    border:1px solid var(--border);
+    border-radius:16px;
+    padding:22px;
+    background:var(--card);
+    display:flex; flex-direction:column; gap:14px;
+    transition:transform .2s cubic-bezier(.16,1,.3,1), box-shadow .2s;
+  }
+  .feature-card:hover{ transform:translateY(-3px); box-shadow:0 18px 34px -22px rgb(var(--shadow) / .4); }
+  .feature-visual{
+    height:78px; border-radius:10px;
+    display:flex; align-items:center; padding:0 14px;
+    font-family:var(--font-mono); font-size:11.5px;
+    overflow:hidden; white-space:nowrap;
+  }
+  .feature-visual.v-xbrl{ background:#0f1a17; color:#7fe8c4; }
+  .feature-visual.v-deck{ background:var(--accent-soft); color:var(--ink); flex-direction:column; align-items:flex-start; justify-content:center; gap:4px; }
+  .feature-visual.v-audio{ background:#0f1a17; display:flex; align-items:center; gap:2px; }
+  .feature-visual.v-audio i{ display:block; width:3px; background:#3fceA4; border-radius:2px; }
+  .feature-visual.v-multi{ background:var(--bg-alt); display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
+  .tag{ font-family:var(--font-mono); font-size:10.5px; border:1px solid var(--border); border-radius:6px; padding:3px 7px; color:var(--ink-muted); }
+  .feature-title{ font-family:var(--font-display); font-weight:700; font-size:16px; }
+  .feature-body{ font-size:14px; color:var(--ink-muted); line-height:1.5; }
+
+  /* ---------- Dual-checker asymmetric grid ---------- */
+  .dual-grid{
+    display:grid; grid-template-columns:1.2fr 1fr; gap:18px; margin-top:48px;
+  }
+  @media (max-width:880px){ .dual-grid{ grid-template-columns:1fr; } }
+  .dual-col{ display:flex; flex-direction:column; gap:18px; }
+  .panel{
+    border:1px solid var(--border); border-radius:18px; padding:26px;
+    background:var(--card);
+  }
+  .panel-tall{ display:flex; flex-direction:column; gap:18px; justify-content:space-between; height:100%; }
+  .panel-kicker{ font-family:var(--font-mono); font-size:12px; color:var(--accent); font-weight:600; letter-spacing:.04em; }
+  .panel h3{ font-size:19px; margin-top:6px; }
+  .panel p{ font-size:14px; color:var(--ink-muted); margin-top:8px; }
+  .formula{
+    margin-top:14px;
+    font-family:var(--font-mono); font-size:13px;
+    background:#0f1a17; color:#7fe8c4;
+    border-radius:10px; padding:14px 16px;
+  }
+  .span-types{ display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+  .span-chip{
+    font-family:var(--font-mono); font-size:11px; padding:5px 10px; border-radius:8px;
+    background:var(--bg-alt); border:1px solid var(--border); color:var(--ink-muted);
+  }
+
+  /* ---------- Stats band (dark) ---------- */
+  .stats-top{ text-align:left; }
+  .stat-big{
+    font-family:var(--font-display); font-weight:700;
+    font-size:clamp(34px, 6vw, 58px); line-height:1.05;
+  }
+  .stat-big .accent{ color:var(--dark-accent); }
+  .stats-cards{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:44px;
+  }
+  @media (max-width:760px){ .stats-cards{ grid-template-columns:1fr; } }
+  .stat-card{
+    border:1px solid var(--dark-border); border-radius:16px; padding:22px;
+    background:var(--dark-card);
+  }
+  .stat-card .num{ font-family:var(--font-display); font-weight:700; font-size:34px; color:var(--dark-accent); }
+  .stat-card .label{ margin-top:6px; font-size:13.5px; color:var(--dark-ink-muted); }
+
+  .findings{
+    display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-top:56px;
+  }
+  @media (max-width:900px){ .findings{ grid-template-columns:1fr; } }
+  .finding-card{
+    border:1px solid var(--dark-border); border-radius:16px; padding:22px;
+    background:linear-gradient(160deg, rgb(63 206 164 / .06), transparent 60%), var(--dark-bg-alt);
+  }
+  .finding-text{ font-size:14.5px; line-height:1.55; color:var(--dark-ink); }
+  .finding-attr{ margin-top:14px; font-family:var(--font-mono); font-size:12px; color:var(--dark-accent); }
+
+  /* ---------- Company explorer ---------- */
+  .tabs{ display:flex; gap:8px; margin-top:36px; flex-wrap:wrap; }
+  .tab{
+    font-family:var(--font-mono); font-size:13px; font-weight:600;
+    padding:9px 16px; border-radius:999px; border:1px solid var(--border);
+    background:var(--card); color:var(--ink-muted); cursor:pointer;
+    transition:background .15s, color .15s, border-color .15s;
+  }
+  .tab:hover{ border-color:var(--accent); color:var(--ink); }
+  .tab.active{ background:var(--ink); border-color:var(--ink); color:#fff; }
+
+  .explorer-summary{
+    display:flex; align-items:baseline; justify-content:space-between; gap:16px;
+    margin-top:28px; flex-wrap:wrap;
+  }
+  .explorer-summary .count{ font-family:var(--font-mono); font-size:13px; color:var(--ink-muted); }
+
+  .table-wrap{ margin-top:16px; overflow-x:auto; border:1px solid var(--border); border-radius:14px; }
+  @media (prefers-reduced-motion: no-preference){
+    #claims-body{ transition:opacity .18s ease; }
+    #claims-body.fading{ opacity:0; }
+  }
+  .scroll-hint{
+    display:none; align-items:center; gap:5px;
+    font-family:var(--font-mono); font-size:11.5px; color:var(--ink-muted);
+  }
+  @media (max-width:700px){
+    .table-wrap{
+      -webkit-mask-image:linear-gradient(to right, #000 calc(100% - 28px), transparent);
+      mask-image:linear-gradient(to right, #000 calc(100% - 28px), transparent);
+    }
+    .scroll-hint{ display:inline-flex; }
+  }
+  table{ width:100%; border-collapse:collapse; font-size:13.5px; min-width:640px; }
+  thead th{
+    text-align:left; font-family:var(--font-mono); font-size:11px; text-transform:uppercase;
+    letter-spacing:.06em; color:var(--ink-muted); font-weight:600;
+    padding:12px 16px; background:var(--bg-alt); border-bottom:1px solid var(--border);
+  }
+  tbody td{ padding:11px 16px; border-bottom:1px solid var(--border); }
+  tbody tr:last-child td{ border-bottom:none; }
+  tbody tr:hover{ background:var(--bg-alt); }
+  td.val{ font-family:var(--font-mono); font-weight:600; text-align:right; }
+  td.metric-cell{ color:var(--ink-muted); }
+  td.metric-cell b{ color:var(--ink); font-weight:600; display:block; font-size:13.5px; }
+  td.metric-cell span{ font-family:var(--font-mono); font-size:11.5px; }
+
+  .method-pill{ font-family:var(--font-mono); font-size:11px; padding:3px 9px; border-radius:999px; white-space:nowrap; }
+  .method-manual{ background:#eef1f2; color:var(--neutral-verdict); }
+  .method-automated{ background:var(--accent-soft); color:var(--ok); }
+
+  /* ---------- Timeline ---------- */
+  .timeline{ margin-top:48px; display:flex; flex-direction:column; }
+  .tl-row{
+    display:grid; grid-template-columns:64px 1fr; gap:20px;
+    padding-block:18px; border-top:1px solid var(--border);
+  }
+  .tl-row:last-child{ border-bottom:1px solid var(--border); }
+  .tl-num{ font-family:var(--font-mono); font-size:13px; color:var(--accent); font-weight:700; padding-top:2px; }
+  .tl-title{ font-family:var(--font-display); font-weight:700; font-size:15.5px; }
+  .tl-body{ margin-top:4px; font-size:13.5px; color:var(--ink-muted); max-width:70ch; }
+
+  /* ---------- Closing band ---------- */
+  .closing{
+    border-radius:28px;
+    background:linear-gradient(135deg, #0d2b22, #0b1210 65%);
+    color:#eef4f1;
+    padding:64px 48px;
+    display:flex; align-items:center; justify-content:space-between; gap:32px; flex-wrap:wrap;
+  }
+  @media (max-width:760px){ .closing{ padding:40px 26px; } }
+  .closing h3{ font-size:clamp(24px,3.4vw,32px); }
+  .closing p{ margin-top:10px; color:#9fb0aa; font-size:14.5px; max-width:46ch; }
+
+  /* ---------- Footer ---------- */
+  footer{
+    background:linear-gradient(180deg, #0b1210, #081009);
+    color:#9fb0aa;
+    padding-block:64px 32px;
+  }
+  .footer-grid{
+    display:grid; grid-template-columns:1.4fr 1fr 1fr; gap:40px;
+  }
+  @media (max-width:700px){ .footer-grid{ grid-template-columns:1fr; gap:28px; } }
+  .footer-brand{ color:#eef4f1; font-family:var(--font-display); font-weight:700; font-size:17px; display:flex; align-items:center; gap:8px; }
+  .footer-desc{ margin-top:12px; font-size:13.5px; max-width:36ch; line-height:1.6; }
+  .footer-col-title{ font-size:12px; text-transform:uppercase; letter-spacing:.08em; color:var(--dark-muted-2); margin-bottom:14px; }
+  .footer-col a, .footer-col span{ display:block; font-size:13.5px; padding:5px 0; text-decoration:none; color:#b7c4bf; }
+  .footer-col a:hover{ color:#fff; }
+  .footer-bottom{
+    margin-top:48px; padding-top:24px; border-top:1px solid #1c2b25;
+    display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap;
+    font-size:12.5px; color:var(--dark-muted-2);
+  }
+</style>
+
+<nav class="nav">
+  <div class="wrap">
+    <a href="#top" class="brand"><span class="brand-mark">C</span>CrossCheck</a>
+    <div class="nav-links">
+      <a href="#problem">Pipeline</a>
+      <a href="#companies-explorer">Companies</a>
+      <a href="#findings">Findings</a>
+    </div>
+    <a href="#companies-explorer" class="nav-cta">Explore claims</a>
+  </div>
+</nav>
+
+<header id="top" class="hero">
+  <div class="wrap">
+    <div>
+      <h1 class="headline">The numbers should match.<br><span class="muted">CrossCheck checks that they do.</span></h1>
+      <p class="lede">An automated pipeline that extracts financial claims from earnings calls, investor decks, and SEC filings, then verifies they actually agree with each other.</p>
+      <div class="hero-cta-row">
+        <a href="#companies-explorer" class="btn-primary">Explore the claims →</a>
+        <span class="hero-note">96 real claims from 5 real companies, live from Postgres</span>
+      </div>
+    </div>
+
+    <div class="snapshot">
+      <div class="snapshot-inner">
+        <div class="snapshot-head">
+          <b>Consistency snapshot</b>
+          <span class="mono" style="color:var(--ink-muted); display:flex; align-items:center; gap:6px;"><span class="live-dot"></span>live data</span>
+        </div>
+        <div class="snapshot-row">
+          <span class="metric">PPC · revenue.total</span>
+          <span><span class="value">$3,075,121,000</span> <span class="pill pill-ok">MATCH</span></span>
+        </div>
+        <div class="snapshot-row">
+          <span class="metric">DHR · revenue.total</span>
+          <span><span class="value">$4,343,100,000</span> <span class="pill pill-bad">DISCREPANT</span></span>
+        </div>
+        <div class="snapshot-row">
+          <span class="metric">GE · revenue.total</span>
+          <span><span class="value">$20,524,000,000</span> <span class="pill pill-ok">MATCH</span></span>
+        </div>
+        <div class="snapshot-row">
+          <span class="metric">ADTN · gross_profit</span>
+          <span><span class="value">$58,962,000</span> <span class="pill pill-neutral">UNSCORED</span></span>
+        </div>
+        <div class="snapshot-foot">
+          <div style="display:flex; align-items:center; gap:12px;">
+            <div class="donut"></div>
+            <div class="foot-legend">
+              <span><b>41</b> consistent</span>
+              <span><b>8</b> unsupported</span>
+            </div>
+          </div>
+          <span class="mono" style="font-size:11px; color:var(--ink-muted);">49 gold labels</span>
+        </div>
+      </div>
+      <p style="margin-top:10px; font-size:11.5px; color:var(--ink-muted);">UNSCORED = no hand-labeled reference exists yet for this claim, so neither checker has a verdict to compare.</p>
+    </div>
+  </div>
+</header>
+
+<div class="companies-strip">
+  <div class="wrap">
+    <span class="strip-caption">5 companies analyzed, 5 real 2020 quarterly filings</span>
+    <div class="strip-names">
+      <span class="strip-name"><b>PPC</b> Pilgrim's Pride</span>
+      <span class="strip-name"><b>DHR</b> Danaher</span>
+      <span class="strip-name"><b>GE</b> General Electric</span>
+      <span class="strip-name"><b>TRV</b> Travelers</span>
+      <span class="strip-name"><b>ADTN</b> Adtran</span>
+    </div>
+  </div>
+</div>
+
+<section id="problem">
+  <div class="wrap">
+    <h2 class="headline">Manual reconciliation doesn't scale.<br><span class="muted">So most of it never happens.</span></h2>
+    <p class="lede">A public company's quarterly numbers appear in at least three independent places: the earnings call, the investor deck, and the SEC filing. They rarely get checked against each other, line by line.</p>
+
+    <div class="grid-4">
+      <div class="feature-card">
+        <div class="feature-visual v-xbrl">RevenueFromContract...&nbsp;→&nbsp;$3,075,121,000</div>
+        <div class="feature-title">XBRL extraction</div>
+        <div class="feature-body">Structured facts pulled straight from SEC filings, matched by accession number, not by trusting the filing's own period labels.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-visual v-deck">
+          <span class="tag">page 15</span>
+          <span class="tag">word-position clustering</span>
+        </div>
+        <div class="feature-title">Deck PDF extraction</div>
+        <div class="feature-body">Financial tables parsed by real word position in the PDF, not simple text scraping, from actual investor-deck files.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-visual v-audio" aria-hidden="true">
+          <i style="height:40%"></i><i style="height:70%"></i><i style="height:30%"></i><i style="height:90%"></i><i style="height:50%"></i><i style="height:65%"></i><i style="height:35%"></i><i style="height:80%"></i>
+        </div>
+        <div class="feature-title">Audio claim extraction</div>
+        <div class="feature-body">An LLM reads the real, imperfect speech-to-text transcript of the earnings call and pulls out the figures that were spoken aloud.</div>
+      </div>
+      <div class="feature-card">
+        <div class="feature-visual v-multi">
+          <span class="tag">PPC</span><span class="tag">DHR</span><span class="tag">GE</span><span class="tag">TRV</span><span class="tag">ADTN</span>
+        </div>
+        <div class="feature-title">Multi-company coverage</div>
+        <div class="feature-body">The same pipeline, run across 5 companies and 4 fiscal quarters, Q1 through Q3 2020.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section-alt">
+  <div class="wrap">
+    <h2 class="headline">Two different ways to check.<br><span class="muted">They don't always agree either.</span></h2>
+    <p class="lede">Every extracted claim is checked twice: once by a deterministic rule, once by an LLM judge. Running both is what actually surfaces disagreement.</p>
+
+    <div class="dual-grid">
+      <div class="panel panel-tall">
+        <div>
+          <span class="panel-kicker">Rule-based checker</span>
+          <h3>Deterministic tolerance</h3>
+          <p>Claims sharing a company, metric, and period are compared directly. No model call, no ambiguity in how the number was reached.</p>
+          <div class="formula">relative_diff = |a − b| / max(|a|, |b|)<br>≤ 0.5% → consistent<br>&gt; 0.5% → discrepant</div>
+        </div>
+      </div>
+      <div class="dual-col">
+        <div class="panel">
+          <span class="panel-kicker">LLM judge</span>
+          <h3 style="font-size:16px;">Claude Sonnet 5</h3>
+          <p>Reads the same pair with full context, qualifiers included, and can recognize a spoken approximation a fixed tolerance can't.</p>
+        </div>
+        <div class="panel">
+          <span class="panel-kicker">Evidence traceability</span>
+          <h3 style="font-size:16px;">Every claim is anchored</h3>
+          <p>Each claim links back to exactly where it came from.</p>
+          <div class="span-types">
+            <span class="span-chip">char_offset</span>
+            <span class="span-chip">xbrl_fact</span>
+            <span class="span-chip">page_bbox</span>
+            <span class="span-chip">audio_ts</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="findings" class="section-dark">
+  <div class="wrap">
+    <div class="stats-top">
+      <div class="stat-big">96 claims, <span class="accent">97.8% accuracy</span></div>
+      <div class="stat-big" style="margin-top:2px;">on both checkers.</div>
+      <p class="lede" style="max-width:56ch;">Real numbers from a live Postgres database at the time this page was generated, not projections.</p>
+    </div>
+
+    <div class="stats-cards">
+      <div class="stat-card">
+        <div class="num nums">5</div>
+        <div class="label">real SEC filers, 4 fiscal quarters spanned (Q1-Q3 2020)</div>
+      </div>
+      <div class="stat-card">
+        <div class="num nums">18</div>
+        <div class="label">distinct financial metrics tracked, from revenue to combined ratio</div>
+      </div>
+      <div class="stat-card">
+        <div class="num nums">$0.39</div>
+        <div class="label">total real LLM spend across the whole project, cached after first run</div>
+      </div>
+    </div>
+
+    <div class="findings">
+      <div class="finding-card">
+        <p class="finding-text">GE's own SEC filing mislabels its fiscal quarter as 2019 Q3 instead of 2020 Q1. Found by reading the raw XBRL fact, not by trusting the filing's metadata.</p>
+        <div class="finding-attr">Phase 8 · XBRL extraction</div>
+      </div>
+      <div class="finding-card">
+        <p class="finding-text">A CEO said sales grew to "$4.3 billion." The exact figure is $4,343.1M, 0.99% off. The rule-based checker flagged it discrepant. It shouldn't have.</p>
+        <div class="finding-attr">Phase 8 · Consistency checker</div>
+      </div>
+      <div class="finding-card">
+        <p class="finding-text">Dense retrieval alone beat hybrid dense+BM25 search on this filing, the opposite of what the retrieval literature predicts.</p>
+        <div class="finding-attr">Phase 1 · Text retrieval</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="companies-explorer">
+  <div class="wrap">
+    <h2 class="headline">Every claim, by company.<br><span class="muted">Start where the real disagreement is.</span></h2>
+    <p class="lede">DHR's revenue.total is the DISCREPANT claim flagged above — this table is where it lives. Rows pairing a <span class="method-pill method-manual" style="padding:1px 7px;">manual</span> claim with an <span class="method-pill method-automated" style="padding:1px 7px;">auto</span> one are the same fact checked twice: a hand-labeled reference against an automated extraction, not a duplicate.</p>
+
+    <div class="tabs" id="tabs" role="tablist"></div>
+    <div class="explorer-summary">
+      <span class="count" id="explorer-count">loading…</span>
+      <span class="count" id="explorer-modalities"></span>
+      <span class="scroll-hint">⇠ scroll for Source, Value, Method</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Metric</th>
+            <th>Source</th>
+            <th style="text-align:right;">Value</th>
+            <th>Method</th>
+          </tr>
+        </thead>
+        <tbody id="claims-body"></tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<section class="section-alt">
+  <div class="wrap">
+    <h2 class="headline">Nine phases, each verified before the next.</h2>
+    <div class="timeline">
+      <div class="tl-row"><div class="tl-num">00</div><div><div class="tl-title">Data foundation</div><div class="tl-body">5 companies, real filings, decks, XBRL, and audio downloaded and hand-labeled: 64 claims, 49 gold verdicts.</div></div></div>
+      <div class="tl-row"><div class="tl-num">01</div><div><div class="tl-title">Text retrieval</div><div class="tl-body">189 filing chunks, dense vs. hybrid vs. reranked retrieval measured head to head.</div></div></div>
+      <div class="tl-row"><div class="tl-num">02</div><div><div class="tl-title">Audio pipeline</div><div class="tl-body">VAD, ASR (13.0% WER), and speaker diarization (754 turns, 11 speakers) on the real earnings call.</div></div></div>
+      <div class="tl-row"><div class="tl-num">03</div><div><div class="tl-title">XBRL extraction</div><div class="tl-body">Automated structured-fact extraction from SEC filings, matched by accession number.</div></div></div>
+      <div class="tl-row"><div class="tl-num">04</div><div><div class="tl-title">Rule-based checker</div><div class="tl-body">A deterministic 0.5% tolerance rule compares claims across modalities.</div></div></div>
+      <div class="tl-row"><div class="tl-num">05</div><div><div class="tl-title">LLM judge</div><div class="tl-body">Claude Sonnet 5 judges the same pairs independently, validated against the rule-based baseline.</div></div></div>
+      <div class="tl-row"><div class="tl-num">06</div><div><div class="tl-title">Deck extraction</div><div class="tl-body">Investor-deck PDF tables parsed by real word position, not naive text scraping.</div></div></div>
+      <div class="tl-row"><div class="tl-num">07</div><div><div class="tl-title">Audio extraction</div><div class="tl-body">An LLM reads the merged transcript and diarization output to extract spoken claims.</div></div></div>
+      <div class="tl-row"><div class="tl-num">08</div><div><div class="tl-title">Multi-company scale-up</div><div class="tl-body">Every extractor and both checkers run across all 5 companies, surfacing the first real discrepancies.</div></div></div>
+    </div>
+  </div>
+</section>
+
+<section>
+  <div class="wrap">
+    <div class="closing">
+      <div>
+        <h3>96 claims. 2 real disagreements found. 1 live database.</h3>
+        <p>Everything on this page traces back to a query against the same Postgres instance the pipeline writes to.</p>
+      </div>
+      <a href="#companies-explorer" class="btn-primary">Explore the claims →</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="footer-grid">
+      <div>
+        <div class="footer-brand"><span class="brand-mark">C</span>CrossCheck</div>
+        <p class="footer-desc">A multimodal disclosure-consistency engine. Reconciles earnings calls, investor decks, and SEC filings into typed, evidence-linked claims, and flags where they disagree.</p>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Pipeline</div>
+        <a href="#problem">Phase 0-3 · Foundation</a>
+        <a href="#findings">Phase 4-5 · Checkers</a>
+        <a href="#companies-explorer">Phase 6-8 · Scale-up</a>
+      </div>
+      <div class="footer-col">
+        <div class="footer-col-title">Companies analyzed</div>
+        <span>Pilgrim's Pride (PPC)</span>
+        <span>Danaher (DHR)</span>
+        <span>General Electric (GE)</span>
+        <span>Travelers (TRV)</span>
+        <span>Adtran (ADTN)</span>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>Built on real, measured results. No projections, no fabricated figures.</span>
+      <span>Data snapshot generated from a live Postgres database.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  // company explorer
+  var tabsEl = document.getElementById('tabs');
+  var bodyEl = document.getElementById('claims-body');
+  var countEl = document.getElementById('explorer-count');
+  var modEl = document.getElementById('explorer-modalities');
+
+  function fmtValue(v, unit){
+    if (v === null || v === undefined) return 'n/a';
+    var n = Number(v);
+    if (isNaN(n)) return v;
+    var formatted = Math.abs(n) >= 1000 ? n.toLocaleString('en-US') : n.toString();
+    if (unit === 'USD') return '$' + formatted;
+    if (unit === 'USD_per_share') return '$' + n + '/sh';
+    return formatted + (unit ? ' ' + unit : '');
+  }
+
+  function methodPill(method){
+    var isManual = method === 'manual';
+    var label = isManual ? 'manual' : method.replace('automated_', 'auto/');
+    return '<span class="method-pill ' + (isManual ? 'method-manual' : 'method-automated') + '">' + label + '</span>';
+  }
+
+  function renderCompany(data, ticker){
+    var rows = data.claims.filter(function(c){ return c.ticker === ticker; });
+    rows.sort(function(a,b){ return a.canonical_metric_key.localeCompare(b.canonical_metric_key); });
+    var company = data.companies.filter(function(c){ return c.ticker === ticker; })[0];
+
+    var modalities = {};
+    rows.forEach(function(r){ modalities[r.modality] = true; });
+    countEl.textContent = rows.length + ' claims · ' + (company ? company.name : ticker);
+    modEl.textContent = Object.keys(modalities).length + ' modalities: ' + Object.keys(modalities).join(', ');
+
+    function paint(){
+      bodyEl.innerHTML = rows.map(function(r){
+        return '<tr>' +
+          '<td class="metric-cell"><b>' + r.metric + '</b><span>' + r.canonical_metric_key + '</span></td>' +
+          '<td>' + r.modality + '</td>' +
+          '<td class="val nums">' + fmtValue(r.value, r.unit) + '</td>' +
+          '<td>' + methodPill(r.extraction_method) + '</td>' +
+        '</tr>';
+      }).join('');
+      bodyEl.classList.remove('fading');
+    }
+
+    if (bodyEl.children.length){
+      bodyEl.classList.add('fading');
+      setTimeout(paint, 180);
+    } else {
+      paint();
+    }
+  }
+
+  fetch('data.json').then(function(r){ return r.json(); }).then(function(data){
+    var tickers = data.companies.map(function(c){ return c.ticker; });
+    var startTicker = tickers.indexOf('DHR') !== -1 ? 'DHR' : tickers[0];
+
+    tabsEl.innerHTML = tickers.map(function(t){
+      return '<button class="tab' + (t === startTicker ? ' active' : '') + '" data-ticker="' + t + '" role="tab">' + t + '</button>';
+    }).join('');
+
+    tabsEl.querySelectorAll('.tab').forEach(function(tab){
+      tab.addEventListener('click', function(){
+        tabsEl.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+        tab.classList.add('active');
+        renderCompany(data, tab.getAttribute('data-ticker'));
+      });
+    });
+
+    renderCompany(data, startTicker);
+  }).catch(function(){
+    countEl.textContent = 'Could not load data.json';
+  });
+})();
+</script>

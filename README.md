@@ -14,7 +14,7 @@ A published, single-file report of this project's own real, measured results —
 table, the two real disagreement cases, and the Phase 0-8 timeline. Regenerated from Postgres via
 `scripts/export_dashboard_data.py`, no fabricated data:
 
-**https://claude.ai/code/artifact/e2f94e20-55db-4f29-9359-659cad598c5e**
+**https://landerworks.com/crosscheck/**
 
 ## Status: Phase 9 — dashboard/report published
 

@@ -1,0 +1,412 @@
+{
+  "root_causes": [
+    {
+      "id": "dhr-10k2019-envista",
+      "cause": "recast_discontinued_ops",
+      "ticker": "DHR",
+      "source_accession": "0000313616-20-000041",
+      "source_document": "dhr-20191231x10xk.htm",
+      "quote": "The accounting requirements for reporting Envista as a discontinued operation were met when the Split-Off was completed. Accordingly, the Consolidated Financial Statements for all periods presented reflect this business as a discontinued operation.",
+      "user_reviewed": false,
+      "covers": [
+        {
+          "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+          "period": "FY2019-Q1",
+          "accession_a": "0000313616-19-000068",
+          "accession_b": "0000313616-20-000041"
+        },
+        {
+          "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+          "period": "FY2019-Q2",
+          "accession_a": "0000313616-19-000127",
+          "accession_b": "0000313616-20-000041"
+        },
+        {
+          "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+          "period": "FY2019-Q3",
+          "accession_a": "0000313616-19-000148",
+          "accession_b": "0000313616-20-000041"
+        },
+        {
+          "tag": "GrossProfit",
+          "period": "FY2019-Q1",
+          "accession_a": "0000313616-19-000068",
+          "accession_b": "0000313616-20-000041"
+        },
+        {
+          "tag": "GrossProfit",
+          "period": "FY2019-Q2",
+          "accession_a": "0000313616-19-000127",
+          "accession_b": "0000313616-20-000041"
+        },
+        {
+          "tag": "GrossProfit",
+          "period": "FY2019-Q3",
+          "accession_a": "0000313616-19-000148",
+          "accession_b": "0000313616-20-000041"
+        }
+      ],
+      "notes": "Envista (dental) split-off in Dec 2019; Q1-Q3 2019 sales and gross profit shown in the 10-K Note 22 exclude it."
+    },
+    {
+      "id": "dhr-q2-2020-envista",
+      "cause": "recast_discontinued_ops",
+      "ticker": "DHR",
+      "source_accession": "0000313616-20-000120",
+      "source_document": "dhr-202073x10q.htm",
+      "quote": "The accounting requirements for reporting the Separation of Envista as a discontinued operation were met when the Separation was completed. Accordingly, the accompanying Consolidated Condensed Financial Statements for all periods presented reflect this business as a discontinued operation.",
+      "user_reviewed": false,
+      "covers": [
+        {
+          "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+          "period": "FY2019-6M",
+          "accession_a": "0000313616-19-000127",
+          "accession_b": "0000313616-20-000120"
+        },
+        {
+          "tag": "GrossProfit",
+          "period": "FY2019-6M",
+          "accession_a": "0000313616-19-000127",
+          "accession_b": "0000313616-20-000120"
+        }
+      ]
+    },
+    {
+      "id": "dhr-q3-2020-envista",
+      "cause": "recast_discontinued_ops",
+      "ticker": "DHR",
+      "source_accession": "0000313616-20-000142",
+      "source_document": "dhr-20201002.htm",
+      "quote": "The accounting requirements for reporting the Separation of Envista as a discontinued operation were met when the Separation was completed. Accordingly, the accompanying Consolidated Condensed Financial Statements for all periods presented reflect this business as a discontinued operation.",
+      "user_reviewed": false,
+      "covers": [
+        {
+          "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+          "period": "FY2019-9M",
+          "accession_a": "0000313616-19-000148",
+          "accession_b": "0000313616-20-000142"
+        },
+        {
+          "tag": "GrossProfit",
+          "period": "FY2019-9M",
+          "accession_a": "0000313616-19-000148",
+          "accession_b": "0000313616-20-000142"
+        }
+      ]
+    },
+    {
+      "id": "ge-q1-2020-baker-hughes",
+      "cause": "recast_discontinued_ops",
+      "ticker": "GE",
+      "source_accession": "0000040545-20-000021",
+      "source_document": "ge1q202010-q.htm",
+      "quote": "In September 2019, we reduced our ownership interest in Baker Hughes from 50.2 % to 36.8 % and reclassified its results to discontinued operations for all periods presented.",
+      "user_reviewed": false,
+      "covers": [
+        {
+          "tag": "Revenues",
+          "period": "FY2019-Q1",
+          "accession_a": "0000040545-19-000024",
+          "accession_b": "0000040545-20-000021"
+        }
+      ]
+    },
+    {
+      "id": "ge-q2-2020-baker-hughes",
+      "cause": "recast_discontinued_ops",
+      "ticker": "GE",
+      "source_accession": "0000040545-20-000046",
+      "source_document": "ge2q202010-q.htm",
+      "quote": "In September 2019, we reduced our ownership interest in Baker Hughes from 50.2 % to 36.8 % and reclassified its results to discontinued operations for all periods presented.",
+      "user_reviewed": false,
+      "covers": [
+        {
+          "tag": "Revenues",
+          "period": "FY2019-6M",
+          "accession_a": "0000040545-19-000053",
+          "accession_b": "0000040545-20-000046"
+        },
+        {
+          "tag": "Revenues",
+          "period": "FY2019-Q2",
+          "accession_a": "0000040545-19-000053",
+          "accession_b": "0000040545-20-000046"
+        }
+      ]
+    },
+    {
+      "id": "ge-10k2019-baker-hughes",
+      "cause": "recast_discontinued_ops",
+      "ticker": "GE",
+      "source_accession": "0000040545-20-000009",
+      "source_document": "ge10-k2019.htm",
+      "quote": "As a result, we have deconsolidated our Baker Hughes segment and reclassified its results to discontinued operations for all periods presented.",
+      "user_reviewed": false,
+      "covers": [
+        {
+          "tag": "IncomeLossFromContinuingOperationsPerDilutedShare",
+          "period": "FY2019-Q1",
+          "accession_a": "0000040545-19-000024",
+          "accession_b": "0000040545-20-000009"
+        }
+      ],
+      "notes": "Applies to the Q1-2019 continuing-operations EPS (0.11 -> 0.10) only by metric: the passage states the reclassification, not this per-share amount."
+    },
+    {
+      "id": "ge-q1-2021-gecas",
+      "cause": "recast_discontinued_ops",
+      "ticker": "GE",
+      "source_accession": "0000040545-21-000026",
+      "source_document": "ge-20210331.htm",
+      "quote": "As a result, we have reclassified GECAS' results to discontinued operations for all periods presented",
+      "user_reviewed": false,
+      "covers": [
+        {
+          "tag": "Revenues",
+          "period": "FY2020-Q1",
+          "accession_a": "0000040545-20-000021",
+          "accession_b": "0000040545-21-000026"
+        },
+        {
+          "tag": "IncomeLossFromContinuingOperationsPerDilutedShare",
+          "period": "FY2020-Q1",
+          "accession_a": "0000040545-20-000021",
+          "accession_b": "0000040545-21-000026"
+        }
+      ]
+    },
+    {
+      "id": "ge-q2-2021-gecas",
+      "cause": "recast_discontinued_ops",
+      "ticker": "GE",
+      "source_accession": "0000040545-21-000052",
+      "source_document": "ge-20210630.htm",
+      "quote": "As a result, we have reclassified GECAS' results to discontinued operations for all periods presented",
+      "user_reviewed": false,
+      "covers": [
+        {
+          "tag": "Revenues",
+          "period": "FY2020-6M",
+          "accession_a": "0000040545-20-000046",
+          "accession_b": "0000040545-21-000052"
+        },
+        {
+          "tag": "Revenues",
+          "period": "FY2020-Q2",
+          "accession_a": "0000040545-20-000046",
+          "accession_b": "0000040545-21-000052"
+        },
+        {
+          "tag": "IncomeLossFromContinuingOperationsPerDilutedShare",
+          "period": "FY2020-6M",
+          "accession_a": "0000040545-20-000046",
+          "accession_b": "0000040545-21-000052"
+        },
+        {
+          "tag": "IncomeLossFromContinuingOperationsPerDilutedShare",
+          "period": "FY2020-Q2",
+          "accession_a": "0000040545-20-000046",
+          "accession_b": "0000040545-21-000052"
+        }
+      ]
+    },
+    {
+      "id": "ge-q3-2021-gecas",
+      "cause": "recast_discontinued_ops",
+      "ticker": "GE",
+      "source_accession": "0000040545-21-000064",
+      "source_document": "ge-20210930.htm",
+      "quote": "As a result, we have reclassified GECAS' results to discontinued operations for all periods presented",
+      "user_reviewed": false,
+      "covers": [
+        {
+          "tag": "Revenues",
+          "period": "FY2020-9M",
+          "accession_a": "0000040545-20-000058",
+          "accession_b": "0000040545-21-000064"
+        },
+        {
+          "tag": "Revenues",
+          "period": "FY2020-Q3",
+          "accession_a": "0000040545-20-000058",
+          "accession_b": "0000040545-21-000064"
+        }
+      ],
+      "notes": "EPS pairs of this filing are covered by ge-q3-2021-reverse-split."
+    },
+    {
+      "id": "ge-q3-2021-reverse-split",
+      "cause": "stock_split",
+      "ticker": "GE",
+      "source_accession": "0000040545-21-000064",
+      "source_document": "ge-20210930.htm",
+      "quote": "Reverse Stock Split. In the second quarter of 2021, we announced that we would proceed with the 1-for-8 reverse stock split, as approved by shareholders, and filed an amendment to our certificate of incorporation to effectuate the reverse stock split after the close of trading on July 30, 2021. GE common stock began trading on a split-adjusted basis on August 2, 2021. Effective this quarter, our shares of outstanding common stock and earnings per share calculation have been retroactively restated for all periods presented.",
+      "user_reviewed": false,
+      "covers": [
+        {
+          "tag": "EarningsPerShareDiluted",
+          "period": "FY2020-9M",
+          "accession_a": "0000040545-20-000058",
+          "accession_b": "0000040545-21-000064"
+        },
+        {
+          "tag": "EarningsPerShareDiluted",
+          "period": "FY2020-Q3",
+          "accession_a": "0000040545-20-000058",
+          "accession_b": "0000040545-21-000064"
+        },
+        {
+          "tag": "EarningsPerShareBasic",
+          "period": "FY2020-9M",
+          "accession_a": "0000040545-20-000058",
+          "accession_b": "0000040545-21-000064"
+        },
+        {
+          "tag": "EarningsPerShareBasic",
+          "period": "FY2020-Q3",
+          "accession_a": "0000040545-20-000058",
+          "accession_b": "0000040545-21-000064"
+        },
+        {
+          "tag": "IncomeLossFromContinuingOperationsPerDilutedShare",
+          "period": "FY2020-9M",
+          "accession_a": "0000040545-20-000058",
+          "accession_b": "0000040545-21-000064"
+        },
+        {
+          "tag": "IncomeLossFromContinuingOperationsPerDilutedShare",
+          "period": "FY2020-Q3",
+          "accession_a": "0000040545-20-000058",
+          "accession_b": "0000040545-21-000064"
+        }
+      ],
+      "notes": "Continuing-ops EPS pairs also include the GECAS recast (see ge-q3-2021-gecas); per user decision a split base change is stock_split (ambiguous) even if a restatement is mixed in."
+    },
+    {
+      "id": "ge-10k2021-gecas",
+      "cause": "recast_discontinued_ops",
+      "ticker": "GE",
+      "source_accession": "0000040545-22-000008",
+      "source_document": "ge-20211231.htm",
+      "quote": "DISCONTINUED OPERATIONS primarily comprise our GE Capital Aviation Services (GECAS) business, discontinued in 2021, our mortgage portfolio in Poland, and other trailing assets and liabilities associated with prior dispositions. Results of operations, financial position and cash flows for these businesses are reported as discontinued operations for all periods presented and the notes to the financial statements have been adjusted on a retrospective basis.",
+      "user_reviewed": false,
+      "covers": [
+        {
+          "tag": "Revenues",
+          "period": "FY2019",
+          "accession_a": "0000040545-20-000009",
+          "accession_b": "0000040545-22-000008"
+        },
+        {
+          "tag": "Revenues",
+          "period": "FY2020-Q1",
+          "accession_a": "0000040545-20-000021",
+          "accession_b": "0000040545-22-000008"
+        },
+        {
+          "tag": "Revenues",
+          "period": "FY2020-Q2",
+          "accession_a": "0000040545-20-000046",
+          "accession_b": "0000040545-22-000008"
+        },
+        {
+          "tag": "Revenues",
+          "period": "FY2020-Q3",
+          "accession_a": "0000040545-20-000058",
+          "accession_b": "0000040545-22-000008"
+        },
+        {
+          "tag": "Revenues",
+          "period": "FY2020",
+          "accession_a": "0000040545-21-000011",
+          "accession_b": "0000040545-22-000008"
+        }
+      ],
+      "notes": "Revenue pairs also reflect the 10-K's one-column reporting change (EFS/WCS/Treasury revenues reclassified to Other income for all periods presented); the pairs cannot separate the two effects."
+    },
+    {
+      "id": "ge-10k2021-reverse-split",
+      "cause": "stock_split",
+      "ticker": "GE",
+      "source_accession": "0000040545-22-000008",
+      "source_document": "ge-20211231.htm",
+      "quote": "Reverse Stock Split. In the second quarter of 2021, we announced that we would proceed with the 1-for-8 reverse stock split, as approved by shareholders, and filed an amendment to our certificate of incorporation to effectuate the reverse stock split after the close of trading on July 30, 2021. GE common stock began trading on a split-adjusted basis on August 2, 2021. Our shares of outstanding common stock and earnings per share calculation have been retroactively restated for all periods presented.",
+      "user_reviewed": false,
+      "covers": [
+        {
+          "tag": "EarningsPerShareDiluted",
+          "period": "FY2019",
+          "accession_a": "0000040545-20-000009",
+          "accession_b": "0000040545-22-000008"
+        },
+        {
+          "tag": "EarningsPerShareDiluted",
+          "period": "FY2020-Q1",
+          "accession_a": "0000040545-20-000021",
+          "accession_b": "0000040545-22-000008"
+        },
+        {
+          "tag": "EarningsPerShareDiluted",
+          "period": "FY2020-Q2",
+          "accession_a": "0000040545-20-000046",
+          "accession_b": "0000040545-22-000008"
+        },
+        {
+          "tag": "EarningsPerShareDiluted",
+          "period": "FY2020",
+          "accession_a": "0000040545-21-000011",
+          "accession_b": "0000040545-22-000008"
+        },
+        {
+          "tag": "EarningsPerShareBasic",
+          "period": "FY2019",
+          "accession_a": "0000040545-20-000009",
+          "accession_b": "0000040545-22-000008"
+        },
+        {
+          "tag": "EarningsPerShareBasic",
+          "period": "FY2020-Q1",
+          "accession_a": "0000040545-20-000021",
+          "accession_b": "0000040545-22-000008"
+        },
+        {
+          "tag": "EarningsPerShareBasic",
+          "period": "FY2020-Q2",
+          "accession_a": "0000040545-20-000046",
+          "accession_b": "0000040545-22-000008"
+        },
+        {
+          "tag": "EarningsPerShareBasic",
+          "period": "FY2020",
+          "accession_a": "0000040545-21-000011",
+          "accession_b": "0000040545-22-000008"
+        },
+        {
+          "tag": "IncomeLossFromContinuingOperationsPerDilutedShare",
+          "period": "FY2019",
+          "accession_a": "0000040545-20-000009",
+          "accession_b": "0000040545-22-000008"
+        },
+        {
+          "tag": "IncomeLossFromContinuingOperationsPerDilutedShare",
+          "period": "FY2020-Q1",
+          "accession_a": "0000040545-20-000021",
+          "accession_b": "0000040545-22-000008"
+        },
+        {
+          "tag": "IncomeLossFromContinuingOperationsPerDilutedShare",
+          "period": "FY2020-Q2",
+          "accession_a": "0000040545-20-000046",
+          "accession_b": "0000040545-22-000008"
+        },
+        {
+          "tag": "IncomeLossFromContinuingOperationsPerDilutedShare",
+          "period": "FY2020",
+          "accession_a": "0000040545-21-000011",
+          "accession_b": "0000040545-22-000008"
+        }
+      ],
+      "notes": "Continuing-ops EPS pairs also include the GECAS recast and one-column reporting changes; split base change takes precedence per user decision."
+    }
+  ]
+}

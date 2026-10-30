@@ -11,6 +11,7 @@ grows over time; the committed file keeps the evaluation reproducible.
 
 from __future__ import annotations
 
+import hashlib
 import json
 from dataclasses import dataclass
 from datetime import date
@@ -24,7 +25,7 @@ from crosscheck.extraction.xbrl import (
     TAG_TO_CANONICAL_KEY,
     _normalize_unit,
 )
-from crosscheck.models import Claim
+from crosscheck.models import Claim, Verdict
 
 _FORMS = ("10-Q", "10-K")
 # Year-to-date and full-year windows (days), next to xbrl.py's quarter window.
@@ -39,6 +40,9 @@ class FilingValue:
     form: str
     filed: date
     value: Decimal
+
+
+CAUSES = ("restatement", "recast_discontinued_ops", "stock_split", "error")
 
 
 @dataclass(frozen=True)
@@ -205,3 +209,65 @@ def load_candidates(path: Path) -> list[RestatementCandidate]:
         )
         for d in json.loads(path.read_text(encoding="utf-8"))
     ]
+
+
+@dataclass(frozen=True)
+class RealCase:
+    case_id: str
+    claim_a: Claim
+    claim_b: Claim
+    gold: Verdict
+    cause: str
+    root_cause_id: str
+
+
+def load_confirmed_cases(
+    candidates: list[RestatementCandidate], causes_path: Path
+) -> tuple[list[RealCase], dict[str, int]]:
+    """Gold-labeled cases for the restatement pairs whose cause a human reviewed.
+
+    A pair enters only if a root cause with user_reviewed=true covers it (ticker, tag, period and
+    both accessions). Pairs with no cause, or only an unreviewed one, are counted and left out:
+    a cause is never guessed. Gold is `ambiguous` for stock_split (the figures are not comparable
+    without adjusting for the split) and `discrepant` otherwise. case_id is a hash of
+    ticker|tag|period|accession_a|accession_b, so it survives reordering; claims get unique
+    negative document_ids (they are never persisted).
+    """
+    root_causes = json.loads(causes_path.read_text(encoding="utf-8"))["root_causes"]
+    by_pair = {}
+    for rc in root_causes:
+        if rc["cause"] not in CAUSES:
+            raise ValueError(f"unknown cause {rc['cause']!r} in root cause {rc['id']!r}")
+        for cv in rc["covers"]:
+            key = (rc["ticker"], cv["tag"], cv["period"], cv["accession_a"], cv["accession_b"])
+            by_pair[key] = rc
+    cases: list[RealCase] = []
+    stats = {"excluded_no_cause": 0, "excluded_unreviewed": 0, "root_causes": 0}
+    used: set[str] = set()
+    next_id = -1
+    for c in candidates:
+        for a, b in restatement_pairs(c):
+            key = (c.ticker, c.tag, c.period, a.accession, b.accession)
+            rc = by_pair.get(key)
+            if rc is None:
+                stats["excluded_no_cause"] += 1
+                continue
+            if not rc["user_reviewed"]:
+                stats["excluded_unreviewed"] += 1
+                continue
+            gold = Verdict.AMBIGUOUS if rc["cause"] == "stock_split" else Verdict.DISCREPANT
+            case_id = hashlib.sha256("|".join(key).encode()).hexdigest()[:12]
+            cases.append(
+                RealCase(
+                    case_id,
+                    to_claim(c, a, next_id),
+                    to_claim(c, b, next_id - 1),
+                    gold,
+                    rc["cause"],
+                    rc["id"],
+                )
+            )
+            next_id -= 2
+            used.add(rc["id"])
+    stats["root_causes"] = len(used)
+    return cases, stats

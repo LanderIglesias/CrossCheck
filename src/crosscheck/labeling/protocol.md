@@ -51,3 +51,27 @@ verdicts are represented with at least ~15 examples each, and deliberately seek 
 few real `discrepant` examples found during data scouting (e.g. a segment number that was
 restated between the original filing and next quarter's comparative figures) rather than relying
 only on naturally-occurring ones in a single quarter's documents.
+
+## Real restatement cases (Phase 10): cause taxonomy and gold
+
+Pairs of "original vs restated" XBRL values (the same fact published with a different value by two
+SEC filings) are labeled by **cause**, and the cause decides the gold verdict:
+
+| `cause` | Meaning | Gold |
+|---|---|---|
+| `restatement` | The company restated or reclassified the figure (correction or presentation change) | `discrepant` |
+| `recast_discontinued_ops` | Prior periods recast because a business moved to discontinued operations | `discrepant` |
+| `stock_split` | Per-share data restated for a split; the pair differs by a base change | `ambiguous` |
+| `error` | The change comes from an error in one of the filings | `discrepant` |
+
+- `stock_split` -> `ambiguous`: the two figures are not comparable without adjusting for the split,
+  so a checker that marks them `discrepant` fails the case. If a split pair also carries a small
+  restatement, it stays `stock_split` (decision of the user); say so in the root cause `notes`.
+- A cause enters the evaluation only with a **literal quote** from the restating filing, copied
+  from the text `extract_text` produces from that filing, plus its accession. The quote is
+  checked against that text, never paraphrased and never inferred from the numbers alone.
+- A cause counts only once the user has reviewed the quote and set `user_reviewed: true` in
+  `eval/phase10/restatement_causes.json`. Pairs with no cause, or with an unreviewed one, are
+  excluded and counted (`excluded_no_cause`, `excluded_unreviewed`); the cause is never defaulted.
+- A pair whose difference is only a change in rounding or number format (e.g. $ millions with one
+  decimal vs whole millions) is not a restatement and has no cause: leave it uncovered.

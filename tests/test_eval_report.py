@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+import pytest
+
 from crosscheck.evaluation.report import render_report, summarize
 
 BUDGET = {
@@ -56,6 +58,8 @@ def test_summary_never_mixes_sources():
     for part in ("real", "injected", "false_alarms"):
         assert all(v != 5 for k, v in _walk(s[part]) if k == "n")
     assert "combined" not in s["injected"]["llm"]
+    # Whole summary (cost and stability included): nothing equals the pooled 5 rows.
+    assert all(v != 5 for k, v in _walk(s) if k in ("n", "pairs", "detected"))
 
 
 def test_recall_by_type_and_size():
@@ -92,9 +96,36 @@ def test_stability_flip_rate():
             _row("p2", "stability", "llm", "consistent" if rep == 3 else "discrepant", repeat=rep)
         )
     st = summarize(rows, BUDGET, False)["stability"]
-    assert st["pairs"] == 2 and st["repeats"] == 5
-    assert st["flip_rate"] == 0.5
-    assert st["modal_agreement"] == (1.0 + 0.8) / 2
+    assert st["repeats"] == 5
+    assert "flip_rate" not in st and "pairs" not in st  # no pooled figure
+    real = st["by_origin"]["real"]
+    assert real["pairs"] == 2 and real["flip_rate"] == 0.5
+    assert real["modal_agreement"] == (1.0 + 0.8) / 2
+    assert st["by_origin"]["injected"]["pairs"] == 0
+
+
+def test_stability_and_cost_split_by_source():
+    rows = [
+        _row("r", "real_blind", "llm", "discrepant", cost_usd=0.1, live=True),
+        _row("i1", "injected", "llm", "discrepant", mutation_type="value", cost_usd=0.2),
+        _row("i2", "injected", "llm", "discrepant", mutation_type="value", cost_usd=0.2),
+        _row("c", "real_consistent_control", "llm", "consistent", gold="consistent", cost_usd=0.3),
+        _row("s", "stability", "llm", "discrepant", repeat=1, mutation_type="value", cost_usd=0.4),
+        _row("s", "stability", "llm", "discrepant", repeat=2, mutation_type="value", cost_usd=0.4),
+        _row("e", "real_blind", "llm", None, error="boom"),
+    ]
+    s = summarize(rows, BUDGET, False)
+    co = s["cost"]
+    assert "cost_per_detected_inconsistency" not in co
+    assert co["by_source"]["real"] == {
+        "spent_usd": 0.1,
+        "detected": 1,
+        "cost_per_detected_inconsistency": 0.1,
+    }
+    assert co["by_source"]["injected"]["cost_per_detected_inconsistency"] == pytest.approx(0.2)
+    assert co["controls_spent_usd"] == 0.3 and co["stability_spent_usd"] == pytest.approx(0.8)
+    assert s["real"]["llm"]["blind"]["errors"] == 1
+    assert "errores: 1" in render_report(s)
 
 
 def test_partial_flag_propagates_to_report():
@@ -106,9 +137,9 @@ def test_partial_flag_propagates_to_report():
 
 def test_cost_per_detected_inconsistency_none_when_zero_detected():
     rows = [_row("i1", "injected", "llm", "consistent", mutation_type="value", size="0.05")]
-    assert summarize(rows, BUDGET, False)["cost"]["cost_per_detected_inconsistency"] is None
-    rows.append(_row("i2", "injected", "llm", "discrepant", mutation_type="value", size="0.05"))
-    assert summarize(rows, BUDGET, False)["cost"]["cost_per_detected_inconsistency"] == 0.5
+    by = summarize(rows, BUDGET, False)["cost"]["by_source"]
+    assert by["injected"]["cost_per_detected_inconsistency"] is None
+    assert by["real"]["cost_per_detected_inconsistency"] is None
 
 
 def test_report_prints_na_for_undefined_ratio():

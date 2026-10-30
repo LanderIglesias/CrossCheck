@@ -22,8 +22,13 @@ def _scored(rows: list[dict]) -> list[dict]:
     return [r for r in rows if r["predicted"] is not None]
 
 
+def _errors(rows: list[dict]) -> int:
+    return sum(1 for r in rows if r["error"])
+
+
 def _pr(rows: list[dict]) -> dict:
-    return precision_recall([(r["predicted"], r["gold"]) for r in _scored(rows)])
+    pr = precision_recall([(r["predicted"], r["gold"]) for r in _scored(rows)])
+    return {**pr, "errors": _errors(rows)}
 
 
 def _discrepant_rate(rows: list[dict]) -> dict:
@@ -32,6 +37,7 @@ def _discrepant_rate(rows: list[dict]) -> dict:
     return {
         "n": len(scored),
         "hits": hits,
+        "errors": _errors(rows),
         "rate": hits / len(scored) if scored else None,
         "ci": wilson_interval(hits, len(scored)),
     }
@@ -65,6 +71,7 @@ def _injected_block(rows: list[dict]) -> dict:
                 "detected": d["hits"],
                 "recall": d["rate"],
                 "recall_ci": d["ci"],
+                "errors": d["errors"],
             }
     return out
 
@@ -88,9 +95,10 @@ def _stability(rows: list[dict]) -> dict:
         }
 
     ids = sorted(by_pair)
+    # No pooled figure: real and injected pairs are never aggregated together.
     return {
-        **stats(ids),
         "repeats": max((len(v) for v in by_pair.values()), default=0),
+        "errors": _errors(rows),
         "by_origin": {o: stats([i for i in ids if origin[i] == o]) for o in ("real", "injected")},
     }
 
@@ -102,11 +110,18 @@ def summarize(rows: list[dict], budget: dict, partial: bool, seed: int | None = 
     def of(checker: str, *sources: str) -> list[dict]:
         return [r for r in main if r["checker"] == checker and r["source"] in sources]
 
-    detected = sum(
-        1
-        for r in main
-        if r["checker"] == "llm" and r["predicted"] == "discrepant" and r["gold"] == "discrepant"
-    )
+    llm_all = [r for r in rows if r["checker"] == "llm"]
+
+    def cost_of(sources: tuple[str, ...]) -> dict:
+        rs = [r for r in llm_all if r["source"] in sources]
+        spent_src = sum(r["cost_usd"] for r in rs)
+        det = sum(1 for r in rs if r["predicted"] == "discrepant" and r["gold"] == "discrepant")
+        return {
+            "spent_usd": spent_src,
+            "detected": det,
+            "cost_per_detected_inconsistency": spent_src / det if det else None,
+        }
+
     spent = budget["spent_usd"]
     return {
         "real": {c: _real_block(of(c, *_REAL_SOURCES)) for c in _CHECKERS},
@@ -119,7 +134,9 @@ def summarize(rows: list[dict], budget: dict, partial: bool, seed: int | None = 
             "input_tokens": budget["input_tokens"],
             "output_tokens": budget["output_tokens"],
             "spent_usd": spent,
-            "cost_per_detected_inconsistency": spent / detected if detected else None,
+            "by_source": {"real": cost_of(_REAL_SOURCES), "injected": cost_of(("injected",))},
+            "controls_spent_usd": cost_of(("real_consistent_control",))["spent_usd"],
+            "stability_spent_usd": cost_of(("stability",))["spent_usd"],
         },
         "partial": partial,
         "seed": seed,
@@ -137,7 +154,7 @@ def _ci(ci: tuple[float, float], ratio: float | None) -> str:
 
 def _pr_row(name: str, m: dict) -> str:
     return (
-        f"| {name} | {m['n']} | {_pct(m['precision'])} {_ci(m['precision_ci'], m['precision'])} "
+        f"| {name} | {m['n']} (errores: {m['errors']}) | {_pct(m['precision'])} {_ci(m['precision_ci'], m['precision'])} "
         f"| {_pct(m['recall'])} {_ci(m['recall_ci'], m['recall'])} |"
     )
 
@@ -185,7 +202,7 @@ def render_report(summary: dict[str, Any]) -> str:
         for mtype, by_size in summary["injected"][c].items():
             for size, cell in by_size.items():
                 out.append(
-                    f"| {mtype} | {size} | {cell['n']} | {_pct(cell['recall'])} "
+                    f"| {mtype} | {size} | {cell['n']} (errores: {cell['errors']}) | {_pct(cell['recall'])} "
                     f"| {_ci(cell['recall_ci'], cell['recall'])} |"
                 )
         out.append("")
@@ -198,27 +215,43 @@ def render_report(summary: dict[str, Any]) -> str:
     ]
     for c in _CHECKERS:
         fa = summary["false_alarms"][c]
-        out.append(f"| {c} | {fa['n']} | {_pct(fa['rate'])} | {_ci(fa['ci'], fa['rate'])} |")
+        out.append(
+            f"| {c} | {fa['n']} (errores: {fa['errors']}) | {_pct(fa['rate'])} | {_ci(fa['ci'], fa['rate'])} |"
+        )
 
     st = summary["stability"]
     out += [
         "",
-        "## D. Estabilidad del juez LLM",
+        "## D. Estabilidad del juez LLM (real e inyectado por separado)",
         "",
-        f"Pares: {st['pairs']}, repeticiones: {st['repeats']}, "
-        f"tasa de cambio: {_pct(st['flip_rate'])}, "
-        f"acuerdo con la moda: {_pct(st['modal_agreement'])}",
+        f"Repeticiones: {st['repeats']}, errores: {st['errors']}",
         "",
+        "| Origen | Pares | Tasa de cambio | Acuerdo con la moda |",
+        "|---|---|---|---|",
     ]
+    for origin, o in st["by_origin"].items():
+        out.append(
+            f"| {origin} | {o['pairs']} | {_pct(o['flip_rate'])} | {_pct(o['modal_agreement'])} |"
+        )
     co = summary["cost"]
-    cpd = co["cost_per_detected_inconsistency"]
     out += [
+        "",
         "## E. Coste",
         "",
         f"Llamadas en vivo: {co['live_calls']}, fallidas: {co['failed_calls']}, "
         f"tokens: {co['input_tokens']} entrada / {co['output_tokens']} salida, "
-        f"gastado: {co['spent_usd']:.4f} $, "
-        f"por inconsistencia detectada: {'n/a' if cpd is None else f'{cpd:.4f} $'}",
+        f"gastado en total: {co['spent_usd']:.4f} $ "
+        f"(controles: {co['controls_spent_usd']:.4f} $, estabilidad: "
+        f"{co['stability_spent_usd']:.4f} $)",
         "",
+        "| Fuente | Gastado | Detectadas | Coste por inconsistencia detectada |",
+        "|---|---|---|---|",
     ]
+    for src, c in co["by_source"].items():
+        cpd = c["cost_per_detected_inconsistency"]
+        out.append(
+            f"| {src} | {c['spent_usd']:.4f} $ | {c['detected']} "
+            f"| {'n/a' if cpd is None else f'{cpd:.4f} $'} |"
+        )
+    out.append("")
     return "\n".join(out)

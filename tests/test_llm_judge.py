@@ -1,3 +1,4 @@
+import hashlib
 from dataclasses import dataclass
 from decimal import Decimal
 
@@ -44,9 +45,11 @@ class _FakeMessages:
         self.verdict = verdict
         self.rationale = rationale
         self.call_count = 0
+        self.calls: list[dict] = []
 
     def create(self, **kwargs):
         self.call_count += 1
+        self.calls.append(kwargs)
         return _FakeResponse(
             content=[
                 _FakeToolUseBlock(
@@ -119,3 +122,49 @@ def test_raises_clear_error_when_api_key_missing(monkeypatch, tmp_path):
 
     with pytest.raises(LLMJudgeNotConfiguredError, match="ANTHROPIC_API_KEY"):
         judge_pair(a, b)
+
+
+def _setup_fake(monkeypatch, tmp_path):
+    monkeypatch.setattr(llm_judge.settings, "data_dir", tmp_path)
+    monkeypatch.setattr(llm_judge.settings, "anthropic_api_key", "fake-key-for-test")
+    monkeypatch.setattr(llm_judge, "_client", None)
+    fake_client = _FakeClient("consistent", "Values agree within rounding.")
+    monkeypatch.setattr(llm_judge, "_get_client", lambda: fake_client)
+    return fake_client
+
+
+def test_repeat_zero_keeps_existing_cache_path(monkeypatch, tmp_path):
+    monkeypatch.setattr(llm_judge.settings, "data_dir", tmp_path)
+    p = "some prompt"
+    digest = hashlib.sha256(p.encode("utf-8")).hexdigest()
+    expected = llm_judge.settings.raw_dir / "llm_cache" / llm_judge.MODEL_ID / f"{digest}.json"
+    assert llm_judge._cache_path(p) == llm_judge._cache_path(p, 0) == expected
+
+
+def test_repeat_uses_distinct_cache_and_same_prompt(monkeypatch, tmp_path):
+    fake_client = _setup_fake(monkeypatch, tmp_path)
+    p = "some prompt"
+    paths = {llm_judge._cache_path(p, r) for r in (0, 1, 2)}
+    assert len(paths) == 3
+
+    a = _claim(1, "revenue.total", "1000000", "USD")
+    b = _claim(2, "revenue.total", "1001000", "USD")
+    judge_pair(a, b, repeat=1)
+    judge_pair(a, b, repeat=1)
+    assert fake_client.messages.call_count == 1
+    judge_pair(a, b, repeat=2)
+    assert fake_client.messages.call_count == 2
+    assert all("#repeat" not in c["messages"][0]["content"] for c in fake_client.messages.calls)
+
+
+def test_judge_pair_with_usage_live_then_cached(monkeypatch, tmp_path):
+    _setup_fake(monkeypatch, tmp_path)
+    a = _claim(1, "revenue.total", "1000000", "USD")
+    b = _claim(2, "revenue.total", "1001000", "USD")
+
+    assert not llm_judge.is_cached(a, b)
+    _, usage = llm_judge.judge_pair_with_usage(a, b)
+    assert usage == {"input_tokens": 100, "output_tokens": 20}
+    assert llm_judge.is_cached(a, b)
+    _, usage = llm_judge.judge_pair_with_usage(a, b)
+    assert usage is None

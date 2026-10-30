@@ -108,8 +108,12 @@ def _build_prompt(claim_a: Claim, claim_b: Claim | None) -> str:
     return f"claim_a: {_describe_claim(claim_a)}\nclaim_b: {_describe_claim(claim_b)}"
 
 
-def _cache_path(prompt: str) -> Path:
-    digest = hashlib.sha256(prompt.encode("utf-8")).hexdigest()
+def _cache_path(prompt: str, repeat: int = 0) -> Path:
+    """Cache location for a prompt. repeat=0 hashes the bare prompt (the pre-existing key, so the
+    on-disk cache stays valid); repeat>0 salts only the hash input, so a stability study can re-ask
+    the same pair independently while the prompt sent to the API is unchanged."""
+    key = prompt if repeat == 0 else f"{prompt}\n#repeat={repeat}"
+    digest = hashlib.sha256(key.encode("utf-8")).hexdigest()
     return settings.raw_dir / "llm_cache" / MODEL_ID / f"{digest}.json"
 
 
@@ -171,23 +175,40 @@ def _call_llm(prompt: str) -> dict[str, Any]:
     }
 
 
-def judge_pair(claim_a: Claim, claim_b: Claim | None) -> Prediction:
-    """Ask the LLM to judge one candidate pair (or unsupported singleton), returning a Prediction
-    in the same shape Phase 4's rule-based check_pair() produces."""
-    prompt = _build_prompt(claim_a, claim_b)
-    cache_path = _cache_path(prompt)
+def is_cached(claim_a: Claim, claim_b: Claim | None, repeat: int = 0) -> bool:
+    """True if judging this pair would be served from disk (no API cost). Existence check only: a
+    corrupt entry still reports True and is evicted/re-fetched on the next judge call."""
+    return _cache_path(_build_prompt(claim_a, claim_b), repeat).exists()
 
+
+def judge_pair_with_usage(
+    claim_a: Claim, claim_b: Claim | None, repeat: int = 0
+) -> tuple[Prediction, dict[str, int] | None]:
+    """Like judge_pair, but also returns the live call's {"input_tokens","output_tokens"}, or None
+    when the answer came from the cache -- lets callers enforce a spend budget."""
+    prompt = _build_prompt(claim_a, claim_b)
+    cache_path = _cache_path(prompt, repeat)
+
+    usage: dict[str, int] | None = None
     cached = _read_cache(cache_path) if cache_path.exists() else None
     if cached is None:
         cached = _call_llm(prompt)
         atomic_write_text(cache_path, json.dumps(cached))
+        usage = cached["usage"]
 
-    return Prediction(
+    prediction = Prediction(
         claim_a=claim_a,
         claim_b=claim_b,
         verdict=Verdict(cached["verdict"]),
         rationale=cached["rationale"],
     )
+    return prediction, usage
+
+
+def judge_pair(claim_a: Claim, claim_b: Claim | None, repeat: int = 0) -> Prediction:
+    """Ask the LLM to judge one candidate pair (or unsupported singleton), returning a Prediction
+    in the same shape Phase 4's rule-based check_pair() produces."""
+    return judge_pair_with_usage(claim_a, claim_b, repeat)[0]
 
 
 def generate_llm_predictions(claims: list[Claim]) -> list[Prediction]:

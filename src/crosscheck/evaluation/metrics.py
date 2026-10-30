@@ -21,9 +21,7 @@ def wilson_interval(successes: int, n: int, z: float = 1.96) -> tuple[float, flo
     return (centre - half, centre + half)
 
 
-def precision_recall(
-    pairs: list[tuple[str, str]], positive: str = "discrepant"
-) -> dict:
+def precision_recall(pairs: list[tuple[str, str]], positive: str = "discrepant") -> dict:
     """Precisión y recall de la clase `positive` sobre pares (predicted, gold).
 
     Un ratio sin denominador es None, no 0: "no medible" no es "falla todo".

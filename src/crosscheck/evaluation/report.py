@@ -1,0 +1,224 @@
+"""Agregación y informe de la evaluación de la Fase 10.
+
+Las filas de predicciones se agregan por fuente: real (reexpresiones y etiquetas a ciegas),
+controles reales `consistent` e inyectadas. Ningún bloque combina fuente real e inyectada: sus
+n responden a preguntas distintas (precisión sobre casos naturales frente a sensibilidad a errores
+sintéticos). La estabilidad y el coste son aparte porque no miden acierto.
+"""
+
+from __future__ import annotations
+
+from collections import Counter, defaultdict
+from typing import Any
+
+from crosscheck.evaluation.metrics import precision_recall, wilson_interval
+
+_REAL_SOURCES = ("real_restatement", "real_blind")
+_CHECKERS = ("rules", "llm")
+
+
+def _scored(rows: list[dict]) -> list[dict]:
+    """Rows that produced a prediction (an errored judge call has predicted None)."""
+    return [r for r in rows if r["predicted"] is not None]
+
+
+def _pr(rows: list[dict]) -> dict:
+    return precision_recall([(r["predicted"], r["gold"]) for r in _scored(rows)])
+
+
+def _discrepant_rate(rows: list[dict]) -> dict:
+    scored = _scored(rows)
+    hits = sum(1 for r in scored if r["predicted"] == "discrepant")
+    return {
+        "n": len(scored),
+        "hits": hits,
+        "rate": hits / len(scored) if scored else None,
+        "ci": wilson_interval(hits, len(scored)),
+    }
+
+
+def _real_block(rows: list[dict]) -> dict:
+    by_cause: dict[str, list[dict]] = defaultdict(list)
+    for r in rows:
+        if r["cause"]:
+            by_cause[r["cause"]].append(r)
+    return {
+        "restatement": _pr([r for r in rows if r["source"] == "real_restatement"]),
+        "blind": _pr([r for r in rows if r["source"] == "real_blind"]),
+        "combined": _pr(rows),
+        "by_cause": {c: _pr(rs) for c, rs in sorted(by_cause.items())},
+        "root_causes": len({r["root_cause_id"] for r in rows if r["root_cause_id"]}),
+    }
+
+
+def _injected_block(rows: list[dict]) -> dict:
+    cells: dict[str, dict[str, list[dict]]] = defaultdict(lambda: defaultdict(list))
+    for r in rows:
+        cells[r["mutation_type"]][r["size"] or "n/a"].append(r)
+    out: dict[str, dict[str, dict]] = {}
+    for mtype, by_size in sorted(cells.items()):
+        out[mtype] = {}
+        for size, rs in sorted(by_size.items()):
+            d = _discrepant_rate(rs)
+            out[mtype][size] = {
+                "n": d["n"],
+                "detected": d["hits"],
+                "recall": d["rate"],
+                "recall_ci": d["ci"],
+            }
+    return out
+
+
+def _stability(rows: list[dict]) -> dict:
+    by_pair: dict[str, list[str]] = defaultdict(list)
+    origin: dict[str, str] = {}
+    for r in rows:
+        if r["predicted"] is None:
+            continue
+        by_pair[r["item_id"]].append(r["predicted"])
+        origin[r["item_id"]] = "injected" if r["mutation_type"] else "real"
+
+    def stats(ids: list[str]) -> dict:
+        flips = sum(1 for i in ids if len(set(by_pair[i])) > 1)
+        modal = [Counter(by_pair[i]).most_common(1)[0][1] / len(by_pair[i]) for i in ids]
+        return {
+            "pairs": len(ids),
+            "flip_rate": flips / len(ids) if ids else None,
+            "modal_agreement": sum(modal) / len(modal) if modal else None,
+        }
+
+    ids = sorted(by_pair)
+    return {
+        **stats(ids),
+        "repeats": max((len(v) for v in by_pair.values()), default=0),
+        "by_origin": {o: stats([i for i in ids if origin[i] == o]) for o in ("real", "injected")},
+    }
+
+
+def summarize(rows: list[dict], budget: dict, partial: bool, seed: int | None = None) -> dict:
+    main = [r for r in rows if r["source"] != "stability"]
+    stab = [r for r in rows if r["source"] == "stability" and r["checker"] == "llm"]
+
+    def of(checker: str, *sources: str) -> list[dict]:
+        return [r for r in main if r["checker"] == checker and r["source"] in sources]
+
+    detected = sum(
+        1
+        for r in main
+        if r["checker"] == "llm" and r["predicted"] == "discrepant" and r["gold"] == "discrepant"
+    )
+    spent = budget["spent_usd"]
+    return {
+        "real": {c: _real_block(of(c, *_REAL_SOURCES)) for c in _CHECKERS},
+        "injected": {c: _injected_block(of(c, "injected")) for c in _CHECKERS},
+        "false_alarms": {c: _discrepant_rate(of(c, "real_consistent_control")) for c in _CHECKERS},
+        "stability": _stability(stab),
+        "cost": {
+            "live_calls": budget["live_calls"],
+            "failed_calls": budget["failed_calls"],
+            "input_tokens": budget["input_tokens"],
+            "output_tokens": budget["output_tokens"],
+            "spent_usd": spent,
+            "cost_per_detected_inconsistency": spent / detected if detected else None,
+        },
+        "partial": partial,
+        "seed": seed,
+    }
+
+
+def _pct(x: float | None) -> str:
+    return "n/a" if x is None else f"{x:.1%}"
+
+
+def _ci(ci: tuple[float, float], ratio: float | None) -> str:
+    # precision_recall gives (0, 0) for an undefined ratio: printing it would look like a result.
+    return "n/a" if ratio is None else f"[{ci[0]:.1%}, {ci[1]:.1%}]"
+
+
+def _pr_row(name: str, m: dict) -> str:
+    return (
+        f"| {name} | {m['n']} | {_pct(m['precision'])} {_ci(m['precision_ci'], m['precision'])} "
+        f"| {_pct(m['recall'])} {_ci(m['recall_ci'], m['recall'])} |"
+    )
+
+
+def render_report(summary: dict[str, Any]) -> str:
+    out: list[str] = []
+    if summary["partial"]:
+        out += [
+            "> **AVISO: resultados parciales.** La ejecución se cortó (tope de gasto) antes de "
+            "completar todos los elementos previstos.",
+            "",
+        ]
+    out += ["# Evaluación de CrossCheck, Fase 10", ""]
+    if summary["seed"] is not None:
+        out += [f"Semilla: {summary['seed']}", ""]
+
+    out += ["## A. Casos reales (precisión y recall de `discrepant`, IC de Wilson 95 %)", ""]
+    for c in _CHECKERS:
+        blk = summary["real"][c]
+        out += [
+            f"### {c} (causas raíz: {blk['root_causes']})",
+            "",
+            "| Subconjunto | n | Precisión | Recall |",
+            "|---|---|---|---|",
+            _pr_row("reexpresiones", blk["restatement"]),
+            _pr_row("a ciegas", blk["blind"]),
+            _pr_row("juntos (solo reales)", blk["combined"]),
+            *(_pr_row(f"causa: {cause}", m) for cause, m in blk["by_cause"].items()),
+            "",
+        ]
+
+    out += ["## B. Errores inyectados (recall de `discrepant`), aparte de A", ""]
+    out += [
+        "La curva de reglas es un escalón por construcción (tolerancia del 0,5 %): los fallos en "
+        "0,3 % y 0,5 % - e son esperados por diseño, no un hallazgo.",
+        "",
+    ]
+    for c in _CHECKERS:
+        out += [
+            f"### {c}",
+            "",
+            "| Tipo | Tamaño | n | Recall | IC 95 % |",
+            "|---|---|---|---|---|",
+        ]
+        for mtype, by_size in summary["injected"][c].items():
+            for size, cell in by_size.items():
+                out.append(
+                    f"| {mtype} | {size} | {cell['n']} | {_pct(cell['recall'])} "
+                    f"| {_ci(cell['recall_ci'], cell['recall'])} |"
+                )
+        out.append("")
+
+    out += [
+        "## C. Falsas alarmas (controles reales `consistent` sin mutar)",
+        "",
+        "| Checker | n | Tasa de `discrepant` | IC 95 % |",
+        "|---|---|---|---|",
+    ]
+    for c in _CHECKERS:
+        fa = summary["false_alarms"][c]
+        out.append(f"| {c} | {fa['n']} | {_pct(fa['rate'])} | {_ci(fa['ci'], fa['rate'])} |")
+
+    st = summary["stability"]
+    out += [
+        "",
+        "## D. Estabilidad del juez LLM",
+        "",
+        f"Pares: {st['pairs']}, repeticiones: {st['repeats']}, "
+        f"tasa de cambio: {_pct(st['flip_rate'])}, "
+        f"acuerdo con la moda: {_pct(st['modal_agreement'])}",
+        "",
+    ]
+    co = summary["cost"]
+    cpd = co["cost_per_detected_inconsistency"]
+    out += [
+        "## E. Coste",
+        "",
+        f"Llamadas en vivo: {co['live_calls']}, fallidas: {co['failed_calls']}, "
+        f"tokens: {co['input_tokens']} entrada / {co['output_tokens']} salida, "
+        f"gastado: {co['spent_usd']:.4f} $, "
+        f"por inconsistencia detectada: {'n/a' if cpd is None else f'{cpd:.4f} $'}",
+        "",
+    ]
+    return "\n".join(out)

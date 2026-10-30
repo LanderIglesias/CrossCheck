@@ -65,8 +65,9 @@ def unlabeled_pairs(
 
 
 def blind_rows(pairs: list[tuple[Claim, Claim]]) -> list[dict[str, str]]:
-    """CSV rows sorted by pair_key, with empty verdict/rationale/labeled_by for the human."""
-    rows = []
+    """CSV rows sorted by pair_key, with empty verdict/rationale/labeled_by for the human.
+    Pairs of content-identical claims share a pair_key and collapse into one row."""
+    rows: dict[str, dict[str, str]] = {}
     for x, y in pairs:
         a, b = sorted((x, y), key=claim_key)
         row = dict.fromkeys(BLIND_COLUMNS, "")
@@ -80,8 +81,8 @@ def blind_rows(pairs: list[tuple[Claim, Claim]]) -> list[dict[str, str]]:
             for f in _CLAIM_FIELDS:
                 v = getattr(c, f)
                 row[f"{side}_{f}"] = "" if v is None else str(v)
-        rows.append(row)
-    return sorted(rows, key=lambda r: r["pair_key"])
+        rows[row["pair_key"]] = row
+    return [rows[k] for k in sorted(rows)]
 
 
 def write_blind_csv(path: Path, pairs: list[tuple[Claim, Claim]]) -> int:
@@ -99,13 +100,21 @@ def load_blind_labels(path: Path, claims: list[Claim]) -> list[tuple[Claim, Clai
     skipped (the caller counts them: rows in the file minus the length of the result)."""
     by_key = {pair_key(a, b): (a, b) for a, b in unlabeled_pairs(claims, {})}
     labeled = []
+    seen: set[str] = set()
     with path.open(newline="", encoding="utf-8") as f:
         for row in csv.DictReader(f):
             verdict = row["verdict"].strip()
             if not verdict:
                 continue
+            if row["pair_key"] in seen:
+                raise ValueError(f"labeled pair appears twice: {row['pair_key']}")
+            seen.add(row["pair_key"])
             if row["pair_key"] not in by_key:
                 raise ValueError(f"labeled pair not found in current claims: {row['pair_key']}")
             a, b = by_key[row["pair_key"]]
-            labeled.append((a, b, Verdict(verdict), row["rationale"]))
+            try:
+                parsed = Verdict(verdict)
+            except ValueError:
+                raise ValueError(f"bad verdict {verdict!r} for pair: {row['pair_key']}") from None
+            labeled.append((a, b, parsed, row["rationale"]))
     return labeled

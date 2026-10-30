@@ -11,7 +11,7 @@ from pathlib import Path
 
 from eval_consistency_checker import load_all_claims, load_all_gold_labels
 
-from crosscheck.evaluation.blind import unlabeled_pairs, write_blind_csv
+from crosscheck.evaluation.blind import blind_rows, unlabeled_pairs, write_blind_csv
 
 OUT = Path(__file__).resolve().parent.parent / "eval" / "phase10" / "blind_pairs.csv"
 
@@ -19,8 +19,8 @@ OUT = Path(__file__).resolve().parent.parent / "eval" / "phase10" / "blind_pairs
 def main() -> None:
     pairs = unlabeled_pairs(load_all_claims(), load_all_gold_labels())
     n = write_blind_csv(OUT, pairs)
-    print(f"{n} unlabeled pairs -> {OUT}")
-    for subject, count in sorted(Counter(a.subject for a, _ in pairs).items()):
+    print(f"{n} unlabeled pairs -> {OUT} ({len(pairs) - n} duplicate pair_keys collapsed)")
+    for subject, count in sorted(Counter(r["subject"] for r in blind_rows(pairs)).items()):
         print(f"  {subject}: {count}")
 
 

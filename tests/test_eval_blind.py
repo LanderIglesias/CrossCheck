@@ -3,12 +3,15 @@ from __future__ import annotations
 import csv
 from decimal import Decimal
 
+import pytest
+
 from crosscheck.evaluation.blind import (
     BLIND_COLUMNS,
     claim_key,
     load_blind_labels,
     pair_key,
     unlabeled_pairs,
+    write_blind_csv,
 )
 from crosscheck.models import Claim, Verdict
 
@@ -69,3 +72,38 @@ def test_load_blind_labels_rematches_by_content(tmp_path):
     assert len(out) == 1
     assert {out[0][0].id, out[0][1].id} == {50, 51}
     assert out[0][2] == Verdict.DISCREPANT and out[0][3] == "r"
+
+
+def test_content_identical_claims_export_one_row_and_label_once(tmp_path):
+    a, b = _claim(1, 1, "100"), _claim(2, 2, "110")
+    b_dup = b.model_copy(update={"id": 3})
+    pairs = unlabeled_pairs([a, b, b_dup], {})
+    assert len(pairs) == 2
+    path = tmp_path / "blind.csv"
+    assert write_blind_csv(path, pairs) == 1
+    with path.open(newline="", encoding="utf-8") as f:
+        rows = list(csv.DictReader(f))
+    rows[0]["verdict"] = "consistent"
+    with path.open("w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=BLIND_COLUMNS)
+        w.writeheader()
+        w.writerows(rows)
+    assert len(load_blind_labels(path, [a, b, b_dup])) == 1
+    w_rows = rows + rows
+    with path.open("w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=BLIND_COLUMNS)
+        w.writeheader()
+        w.writerows(w_rows)
+    with pytest.raises(ValueError, match="twice"):
+        load_blind_labels(path, [a, b, b_dup])
+
+
+def test_bad_verdict_names_pair_key_and_value(tmp_path):
+    a, b = _claim(1, 1, "100"), _claim(2, 2, "110")
+    path = tmp_path / "blind.csv"
+    write_blind_csv(path, [(a, b)])
+    path.write_text(
+        path.read_text(encoding="utf-8").replace(",,,\n", ",bogus,,\n"), encoding="utf-8"
+    )
+    with pytest.raises(ValueError, match="bogus"):
+        load_blind_labels(path, [a, b])

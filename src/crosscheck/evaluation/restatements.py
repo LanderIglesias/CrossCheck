@@ -42,7 +42,7 @@ class FilingValue:
     value: Decimal
 
 
-CAUSES = ("restatement", "recast_discontinued_ops", "stock_split", "error")
+CAUSES = ("restatement", "recast_discontinued_ops", "stock_split", "error", "rounding")
 
 
 @dataclass(frozen=True)
@@ -211,6 +211,9 @@ def load_candidates(path: Path) -> list[RestatementCandidate]:
     ]
 
 
+_CAUSE_GOLD = {"stock_split": Verdict.AMBIGUOUS, "rounding": Verdict.CONSISTENT}
+
+
 @dataclass(frozen=True)
 class RealCase:
     case_id: str
@@ -229,7 +232,8 @@ def load_confirmed_cases(
     A pair enters only if a root cause with user_reviewed=true covers it (ticker, tag, period and
     both accessions). Pairs with no cause, or only an unreviewed one, are counted and left out:
     a cause is never guessed. Gold is `ambiguous` for stock_split (the figures are not comparable
-    without adjusting for the split) and `discrepant` otherwise. case_id is a hash of
+    without adjusting for the split), `consistent` for rounding (a presentation-only
+    difference: a trap, not an error) and `discrepant` otherwise. case_id is a hash of
     ticker|tag|period|accession_a|accession_b, so it survives reordering; claims get unique
     negative document_ids (they are never persisted).
     """
@@ -255,7 +259,7 @@ def load_confirmed_cases(
             if not rc["user_reviewed"]:
                 stats["excluded_unreviewed"] += 1
                 continue
-            gold = Verdict.AMBIGUOUS if rc["cause"] == "stock_split" else Verdict.DISCREPANT
+            gold = _CAUSE_GOLD.get(rc["cause"], Verdict.DISCREPANT)
             case_id = hashlib.sha256("|".join(key).encode()).hexdigest()[:12]
             cases.append(
                 RealCase(

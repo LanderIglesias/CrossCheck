@@ -144,7 +144,7 @@ class Plan:
         return self.real + self.controls + self.mutations
 
 
-def build_plan(seed: int) -> Plan:
+def build_plan(seed: int, skip_stability: bool = False) -> Plan:
     claims = load_all_claims()
     gold = load_all_gold_labels()
     all_base = base_pairs(claims, gold)
@@ -179,7 +179,7 @@ def build_plan(seed: int) -> Plan:
             Item(_short(pair_key(a, b)), "real_consistent_control", a, b, "consistent")
             for a, b in base
         ]
-        n_stab = STABILITY_MUTATIONS + STABILITY_REAL
+        n_stab = 0 if skip_stability else STABILITY_MUTATIONS + STABILITY_REAL
         planned = len(real) + len(controls) + len(muts) + n_stab * len(STABILITY_REPEATS)
         if planned * PHASE8_ESTIMATE_USD <= SOFT_CAP_USD or len(base) <= 1:
             break
@@ -200,13 +200,15 @@ def build_plan(seed: int) -> Plan:
         for m in muts
     ]
     by_id = {i.item_id: i for i in mut_items}
-    stab = [by_id[m.mutation_id] for m in stratified(muts, STABILITY_MUTATIONS, seed)]
-    real_pool = [i for i in real if i.source == "real_restatement"] + [
-        i for i in real if i.source == "real_blind"
-    ]
-    ctrl = list(controls)
-    random.Random(seed).shuffle(ctrl)
-    stab += (real_pool + ctrl)[:STABILITY_REAL]
+    stab: list[Item] = []
+    if not skip_stability:
+        stab = [by_id[m.mutation_id] for m in stratified(muts, STABILITY_MUTATIONS, seed)]
+        real_pool = [i for i in real if i.source == "real_restatement"] + [
+            i for i in real if i.source == "real_blind"
+        ]
+        ctrl = list(controls)
+        random.Random(seed).shuffle(ctrl)
+        stab += (real_pool + ctrl)[:STABILITY_REAL]
 
     info = {
         "eligible_base_pairs": len(all_base),
@@ -272,15 +274,17 @@ def judge_row(
     return row
 
 
-def execute(plan: Plan, guard: BudgetGuard) -> tuple[list[dict], bool]:
+def execute(
+    plan: Plan, guard: BudgetGuard, judge: Callable[..., Any] = judge_pair_with_usage
+) -> tuple[list[dict], bool]:
     rows: list[dict] = []
     try:
         for item in plan.main:
             rows.append(rules_row(item))
-            rows.append(judge_row(item, 0, guard))
+            rows.append(judge_row(item, 0, guard, judge))
         for item in plan.stability:
             for rep in STABILITY_REPEATS:
-                rows.append(judge_row(item, rep, guard, source="stability"))
+                rows.append(judge_row(item, rep, guard, judge, source="stability"))
     except BudgetExceededError as exc:
         print(f"AVISO: tope de gasto alcanzado, resultados parciales: {exc}")
         return rows, True
@@ -295,7 +299,7 @@ def _llm_calls(plan: Plan) -> tuple[int, int]:
     return len(calls), sum(1 for i, r in calls if not is_cached(i.claim_a, i.claim_b, r))
 
 
-def cmd_count(plan: Plan, seed: int) -> None:
+def cmd_count(plan: Plan, seed: int, skip_stability: bool = False) -> None:
     info = plan.info
     OUT.mkdir(parents=True, exist_ok=True)
     dump_mutations(info["mutations"], OUT / "mutations.json")
@@ -321,10 +325,13 @@ def cmd_count(plan: Plan, seed: int) -> None:
     )
     print(f"blind labels found: {info['blind_labels']}")
     print(f"real consistent controls: {len(plan.controls)}")
-    print(
-        f"stability items: {len(plan.stability)} x {len(STABILITY_REPEATS)} = "
-        f"{len(plan.stability) * len(STABILITY_REPEATS)} calls"
-    )
+    if skip_stability:
+        print("stability: skipped (--skip-stability)")
+    else:
+        print(
+            f"stability items: {len(plan.stability)} x {len(STABILITY_REPEATS)} = "
+            f"{len(plan.stability) * len(STABILITY_REPEATS)} calls"
+        )
     print(f"planned judge calls: {total} ({uncached} not cached yet)")
     print(
         f"estimated cost at {PHASE8_ESTIMATE_USD} USD/call (Phase 8): "
@@ -355,7 +362,7 @@ def cmd_pilot(plan: Plan, seed: int, n: int, cap: float) -> None:
     )
 
 
-def cmd_full(plan: Plan, seed: int, cap: float) -> None:
+def cmd_full(plan: Plan, seed: int, cap: float, skip_stability: bool = False) -> None:
     guard = BudgetGuard(cap_usd=cap)
     rows, partial = execute(plan, guard)
     OUT.mkdir(parents=True, exist_ok=True)
@@ -367,7 +374,7 @@ def cmd_full(plan: Plan, seed: int, cap: float) -> None:
         k: getattr(guard, k)
         for k in ("live_calls", "failed_calls", "input_tokens", "output_tokens", "spent_usd")
     }
-    summary = summarize(rows, budget, partial, seed)
+    summary = summarize(rows, budget, partial, seed, skip_stability)
     (OUT / "results.json").write_text(json.dumps(summary, indent=2), encoding="utf-8")
     (OUT / "report.md").write_text(render_report(summary), encoding="utf-8")
     print(f"spent {guard.spent_usd:.4f} USD in {guard.live_calls} live calls; partial={partial}")
@@ -381,14 +388,19 @@ def main() -> None:
     mode.add_argument("--full", action="store_true")
     ap.add_argument("--seed", type=int, default=20261030)
     ap.add_argument("--cap-usd", type=float, default=5.0)
+    ap.add_argument(
+        "--skip-stability",
+        action="store_true",
+        help="plan and run no stability repeats (recorded as skipped); with --full/--count",
+    )
     args = ap.parse_args()
-    plan = build_plan(args.seed)
+    plan = build_plan(args.seed, args.skip_stability)
     if args.count:
-        cmd_count(plan, args.seed)
+        cmd_count(plan, args.seed, args.skip_stability)
     elif args.pilot is not None:
         cmd_pilot(plan, args.seed, args.pilot, args.cap_usd)
     else:
-        cmd_full(plan, args.seed, args.cap_usd)
+        cmd_full(plan, args.seed, args.cap_usd, args.skip_stability)
 
 
 if __name__ == "__main__":

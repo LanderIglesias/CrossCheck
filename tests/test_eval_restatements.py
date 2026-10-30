@@ -148,3 +148,9 @@ def test_unknown_cause_raises(tmp_path):
     path = _causes(tmp_path, cause="typo")
     with pytest.raises(ValueError):
         load_confirmed_cases(_candidates(), path)
+
+
+def test_rounding_gold_is_consistent(tmp_path):
+    path = _causes(tmp_path, cause="rounding")
+    cases, _ = load_confirmed_cases(_candidates(), path)
+    assert [(c.gold, c.cause) for c in cases] == [(Verdict.CONSISTENT, "rounding")]

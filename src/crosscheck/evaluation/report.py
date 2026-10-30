@@ -103,7 +103,13 @@ def _stability(rows: list[dict]) -> dict:
     }
 
 
-def summarize(rows: list[dict], budget: dict, partial: bool, seed: int | None = None) -> dict:
+def summarize(
+    rows: list[dict],
+    budget: dict,
+    partial: bool,
+    seed: int | None = None,
+    skip_stability: bool = False,
+) -> dict:
     main = [r for r in rows if r["source"] != "stability"]
     stab = [r for r in rows if r["source"] == "stability" and r["checker"] == "llm"]
 
@@ -127,7 +133,8 @@ def summarize(rows: list[dict], budget: dict, partial: bool, seed: int | None = 
         "real": {c: _real_block(of(c, *_REAL_SOURCES)) for c in _CHECKERS},
         "injected": {c: _injected_block(of(c, "injected")) for c in _CHECKERS},
         "false_alarms": {c: _discrepant_rate(of(c, "real_consistent_control")) for c in _CHECKERS},
-        "stability": _stability(stab),
+        # Skipped is not zero: nothing was measured, so there is no flip rate.
+        "stability": {"skipped": True} if skip_stability else _stability(stab),
         "cost": {
             "live_calls": budget["live_calls"],
             "failed_calls": budget["failed_calls"],
@@ -220,19 +227,20 @@ def render_report(summary: dict[str, Any]) -> str:
         )
 
     st = summary["stability"]
-    out += [
-        "",
-        "## D. Estabilidad del juez LLM (real e inyectado por separado)",
-        "",
-        f"Repeticiones: {st['repeats']}, errores: {st['errors']}",
-        "",
-        "| Origen | Pares | Tasa de cambio | Acuerdo con la moda |",
-        "|---|---|---|---|",
-    ]
-    for origin, o in st["by_origin"].items():
-        out.append(
-            f"| {origin} | {o['pairs']} | {_pct(o['flip_rate'])} | {_pct(o['modal_agreement'])} |"
-        )
+    out += ["", "## D. Estabilidad del juez LLM (real e inyectado por separado)", ""]
+    if st.get("skipped"):
+        out.append("Estabilidad omitida (--skip-stability): no se midió.")
+    else:
+        out += [
+            f"Repeticiones: {st['repeats']}, errores: {st['errors']}",
+            "",
+            "| Origen | Pares | Tasa de cambio | Acuerdo con la moda |",
+            "|---|---|---|---|",
+        ]
+        for origin, o in st["by_origin"].items():
+            out.append(
+                f"| {origin} | {o['pairs']} | {_pct(o['flip_rate'])} | {_pct(o['modal_agreement'])} |"
+            )
     co = summary["cost"]
     out += [
         "",

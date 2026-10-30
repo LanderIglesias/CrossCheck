@@ -63,6 +63,7 @@ SEC filings) are labeled by **cause**, and the cause decides the gold verdict:
 | `recast_discontinued_ops` | Prior periods recast because a business moved to discontinued operations | `discrepant` |
 | `stock_split` | Per-share data restated for a split; the pair differs by a base change | `ambiguous` |
 | `error` | The change comes from an error in one of the filings | `discrepant` |
+| `rounding` | Same figure shown with different rounding/presentation (e.g. 17,911.1M vs 17,911M) | `consistent` |
 
 - `stock_split` -> `ambiguous`: the two figures are not comparable without adjusting for the split,
   so a checker that marks them `discrepant` fails the case. If a split pair also carries a small
@@ -73,5 +74,8 @@ SEC filings) are labeled by **cause**, and the cause decides the gold verdict:
 - A cause counts only once the user has reviewed the quote and set `user_reviewed: true` in
   `eval/phase10/restatement_causes.json`. Pairs with no cause, or with an unreviewed one, are
   excluded and counted (`excluded_no_cause`, `excluded_unreviewed`); the cause is never defaulted.
-- A pair whose difference is only a change in rounding or number format (e.g. $ millions with one
-  decimal vs whole millions) is not a restatement and has no cause: leave it uncovered.
+- `rounding` -> `consistent`: a deliberate trap (different digits, not an error). It has no filing
+  passage that "explains" it, so the evidence is the two values and the presentation unit; put both
+  values and the relative difference |a-b|/max(|a|,|b|) in `notes` (must be <= 0.5%). A `quote` is
+  optional and only for a literal statement of the unit ("$ in millions"), checked like any quote.
+  A pair above 0.5% is not rounding: leave it uncovered.

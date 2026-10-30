@@ -407,6 +407,162 @@
         }
       ],
       "notes": "Continuing-ops EPS pairs also include the GECAS recast and one-column reporting changes; split base change takes precedence per user decision."
+    },
+    {
+      "id": "dhr-rounding-21000045",
+      "cause": "rounding",
+      "ticker": "DHR",
+      "source_accession": "0000313616-21-000045",
+      "source_document": "dhr-20201231.htm",
+      "quote": "($ in millions)",
+      "user_reviewed": false,
+      "covers": [
+        {
+          "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+          "period": "FY2019",
+          "accession_a": "0000313616-20-000041",
+          "accession_b": "0000313616-21-000045"
+        },
+        {
+          "tag": "NetIncomeLoss",
+          "period": "FY2019",
+          "accession_a": "0000313616-20-000041",
+          "accession_b": "0000313616-21-000045"
+        },
+        {
+          "tag": "GrossProfit",
+          "period": "FY2019",
+          "accession_a": "0000313616-20-000041",
+          "accession_b": "0000313616-21-000045"
+        }
+      ],
+      "notes": "Presentation rounding, not a restatement: the original filing reports one decimal in $ millions, this filing whole $ millions (the quote states only the unit). Values: Revenue FY2019: 17,911.1M (0000313616-20-000041) vs 17,911.0M (0000313616-21-000045), rel diff 0.0006%; NetIncomeLoss FY2019: 3,008.2M (0000313616-20-000041) vs 3,008.0M (0000313616-21-000045), rel diff 0.0066%; GrossProfit FY2019: 9,983.7M (0000313616-20-000041) vs 9,984.0M (0000313616-21-000045), rel diff 0.0030%."
+    },
+    {
+      "id": "dhr-rounding-21000059",
+      "cause": "rounding",
+      "ticker": "DHR",
+      "source_accession": "0000313616-21-000059",
+      "source_document": "dhr-20210402.htm",
+      "quote": "($ in millions, except per share amount)",
+      "user_reviewed": false,
+      "covers": [
+        {
+          "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+          "period": "FY2020-Q2",
+          "accession_a": "0000313616-20-000093",
+          "accession_b": "0000313616-21-000059"
+        },
+        {
+          "tag": "NetIncomeLoss",
+          "period": "FY2020-Q2",
+          "accession_a": "0000313616-20-000093",
+          "accession_b": "0000313616-21-000059"
+        },
+        {
+          "tag": "GrossProfit",
+          "period": "FY2020-Q2",
+          "accession_a": "0000313616-20-000093",
+          "accession_b": "0000313616-21-000059"
+        }
+      ],
+      "notes": "Presentation rounding, not a restatement: the original filing reports one decimal in $ millions, this filing whole $ millions (the quote states only the unit). Values: Revenue FY2020-Q2: 4,343.1M (0000313616-20-000093) vs 4,343.0M (0000313616-21-000059), rel diff 0.0023%; NetIncomeLoss FY2020-Q2: 595.1M (0000313616-20-000093) vs 595.0M (0000313616-21-000059), rel diff 0.0168%; GrossProfit FY2020-Q2: 2,442.8M (0000313616-20-000093) vs 2,443.0M (0000313616-21-000059), rel diff 0.0082%."
+    },
+    {
+      "id": "dhr-rounding-21000098",
+      "cause": "rounding",
+      "ticker": "DHR",
+      "source_accession": "0000313616-21-000098",
+      "source_document": "dhr-20210702.htm",
+      "quote": "($ in millions, except per share amount)",
+      "user_reviewed": false,
+      "covers": [
+        {
+          "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+          "period": "FY2020-6M",
+          "accession_a": "0000313616-20-000120",
+          "accession_b": "0000313616-21-000098"
+        },
+        {
+          "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+          "period": "FY2020-Q3",
+          "accession_a": "0000313616-20-000120",
+          "accession_b": "0000313616-21-000098"
+        },
+        {
+          "tag": "NetIncomeLoss",
+          "period": "FY2020-6M",
+          "accession_a": "0000313616-20-000120",
+          "accession_b": "0000313616-21-000098"
+        },
+        {
+          "tag": "NetIncomeLoss",
+          "period": "FY2020-Q3",
+          "accession_a": "0000313616-20-000120",
+          "accession_b": "0000313616-21-000098"
+        },
+        {
+          "tag": "GrossProfit",
+          "period": "FY2020-6M",
+          "accession_a": "0000313616-20-000120",
+          "accession_b": "0000313616-21-000098"
+        },
+        {
+          "tag": "GrossProfit",
+          "period": "FY2020-Q3",
+          "accession_a": "0000313616-20-000120",
+          "accession_b": "0000313616-21-000098"
+        }
+      ],
+      "notes": "Presentation rounding, not a restatement: the original filing reports one decimal in $ millions, this filing whole $ millions (the quote states only the unit). Values: Revenue FY2020-6M: 9,640.5M (0000313616-20-000120) vs 9,640.0M (0000313616-21-000098), rel diff 0.0052%; Revenue FY2020-Q3: 5,297.4M (0000313616-20-000120) vs 5,297.0M (0000313616-21-000098), rel diff 0.0076%; NetIncomeLoss FY2020-6M: 1,522.4M (0000313616-20-000120) vs 1,522.0M (0000313616-21-000098), rel diff 0.0263%; NetIncomeLoss FY2020-Q3: 927.3M (0000313616-20-000120) vs 927.0M (0000313616-21-000098), rel diff 0.0324%; GrossProfit FY2020-6M: 5,295.4M (0000313616-20-000120) vs 5,295.0M (0000313616-21-000098), rel diff 0.0076%; GrossProfit FY2020-Q3: 2,852.6M (0000313616-20-000120) vs 2,852.0M (0000313616-21-000098), rel diff 0.0210%."
+    },
+    {
+      "id": "dhr-rounding-21000110",
+      "cause": "rounding",
+      "ticker": "DHR",
+      "source_accession": "0000313616-21-000110",
+      "source_document": "dhr-20211001.htm",
+      "quote": "($ in millions, except per share amount)",
+      "user_reviewed": false,
+      "covers": [
+        {
+          "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+          "period": "FY2020-9M",
+          "accession_a": "0000313616-20-000142",
+          "accession_b": "0000313616-21-000110"
+        },
+        {
+          "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+          "period": "FY2020-Q4",
+          "accession_a": "0000313616-20-000142",
+          "accession_b": "0000313616-21-000110"
+        },
+        {
+          "tag": "NetIncomeLoss",
+          "period": "FY2020-9M",
+          "accession_a": "0000313616-20-000142",
+          "accession_b": "0000313616-21-000110"
+        },
+        {
+          "tag": "NetIncomeLoss",
+          "period": "FY2020-Q4",
+          "accession_a": "0000313616-20-000142",
+          "accession_b": "0000313616-21-000110"
+        },
+        {
+          "tag": "GrossProfit",
+          "period": "FY2020-9M",
+          "accession_a": "0000313616-20-000142",
+          "accession_b": "0000313616-21-000110"
+        },
+        {
+          "tag": "GrossProfit",
+          "period": "FY2020-Q4",
+          "accession_a": "0000313616-20-000142",
+          "accession_b": "0000313616-21-000110"
+        }
+      ],
+      "notes": "Presentation rounding, not a restatement: the original filing reports one decimal in $ millions, this filing whole $ millions (the quote states only the unit). Values: Revenue FY2020-9M: 15,523.7M (0000313616-20-000142) vs 15,524.0M (0000313616-21-000110), rel diff 0.0019%; Revenue FY2020-Q4: 5,883.2M (0000313616-20-000142) vs 5,884.0M (0000313616-21-000110), rel diff 0.0136%; NetIncomeLoss FY2020-9M: 2,405.9M (0000313616-20-000142) vs 2,405.0M (0000313616-21-000110), rel diff 0.0374%; NetIncomeLoss FY2020-Q4: 883.5M (0000313616-20-000142) vs 883.0M (0000313616-21-000110), rel diff 0.0566%; GrossProfit FY2020-9M: 8,520.9M (0000313616-20-000142) vs 8,521.0M (0000313616-21-000110), rel diff 0.0012%; GrossProfit FY2020-Q4: 3,225.5M (0000313616-20-000142) vs 3,226.0M (0000313616-21-000110), rel diff 0.0155%."
     }
   ]
 }

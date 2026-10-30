@@ -10,10 +10,11 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 
-from eval_phase10_run import Item, judge_row  # noqa: E402
+from eval_phase10_run import Item, Plan, _llm_calls, execute, judge_row  # noqa: E402
 
 from crosscheck.consistency.checker import Prediction  # noqa: E402
 from crosscheck.evaluation.budget import BudgetExceededError, BudgetGuard  # noqa: E402
+from crosscheck.evaluation.report import render_report, summarize  # noqa: E402
 from crosscheck.models import Claim, Verdict  # noqa: E402
 
 
@@ -60,3 +61,16 @@ def test_runtime_error_counts_as_failure():
     g = BudgetGuard()
     row = judge_row(_item(), 0, g, boom)
     assert row["error"] == "rate limited" and row["predicted"] is None and g.failed_calls == 1
+
+
+def test_skip_stability_is_recorded_as_skipped_not_zero():
+    with_stab = Plan([], [], [_item()], [_item()], {})
+    plan = Plan([], [], [_item()], [], {})
+    assert _llm_calls(plan)[0] == 1 < _llm_calls(with_stab)[0]
+    rows, partial = execute(plan, BudgetGuard(), _fake(None))
+    assert not [r for r in rows if r["source"] == "stability"]
+    budget = dict(live_calls=0, failed_calls=0, input_tokens=0, output_tokens=0, spent_usd=0.0)
+    summary = summarize(rows, budget, partial, 1, skip_stability=True)
+    assert summary["stability"] == {"skipped": True}
+    report = render_report(summary)
+    assert "omitida" in report and "Tasa de cambio" not in report

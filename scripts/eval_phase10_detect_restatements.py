@@ -1,15 +1,15 @@
 """Phase 10: freeze the real XBRL restatement candidates into eval/phase10/restatement_candidates.json.
 
 Reads each company's companyfacts from the EDGAR cache (no network on a cache hit) and keeps every
-(tag, unit, start, end) quarterly duration (80-100 days), end.year in 2019-2020, reported in
-10-Q/10-K filings, with >= 2 distinct values across accessions. Committed because data/raw/ is
-gitignored and companyfacts grows over time.
+(tag, unit, start, end) duration with end.year in 2019-2020, reported in 10-Q/10-K filings, with
+>= 2 distinct values across accessions. Accepted durations: quarter 80-100 days (FY2019-Q2),
+6-month YTD 170-190 (FY2019-6M), 9-month YTD 260-280 (FY2019-9M), full year 350-380 (FY2019).
+Committed because data/raw/ is gitignored and companyfacts grows over time.
 
 Definition note: the spec's exploratory count (DHR 39, GE 30, others 0) did not record its exact
-definition and is NOT reproduced. With the definition above the cache gives DHR 15, GE 15, others 0
-(DHR: 15 pairs / 36 filing values; GE: 20 pairs / 43 filing values, so neither alternative unit of
-counting matches either). Filters were not tuned to match; the spec count may have included other
-years, tags, or non-quarterly durations.
+definition. Counting all durations as above gives PPC 0, DHR 28, GE 30, TRV 0, ADTN 0: GE and the
+zeros match the spec; DHR 28 vs 39 is unexplained (quarter-only gave DHR 15, GE 15). Filters were
+not tuned to match.
 """
 
 from __future__ import annotations

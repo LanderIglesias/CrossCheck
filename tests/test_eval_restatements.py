@@ -23,7 +23,7 @@ def _candidates():
 
 
 def test_detects_value_change_across_filings():
-    cands = _candidates()
+    cands = [c for c in _candidates() if c.period == "FY2019-Q2"]
     assert len(cands) == 1
     c = cands[0]
     assert (c.tag, c.unit, c.start, c.end) == (
@@ -40,13 +40,24 @@ def test_detects_value_change_across_filings():
     assert (pairs[0][0].value, pairs[0][1].value) == (Decimal("1000"), Decimal("900"))
 
 
-def test_ignores_non_quarterly_and_out_of_range_years():
-    # The fixture also holds a 9-month fact (restated) and a 2017 quarter (restated).
-    assert len(_candidates()) == 1
+def test_detects_ytd_and_annual():
+    by_period = {c.period: c for c in _candidates()}
+    assert set(by_period) == {"FY2019-Q2", "FY2019-9M", "FY2019"}
+    assert [v.value for v in by_period["FY2019-9M"].values] == [Decimal("2800"), Decimal("2700")]
+    assert [v.value for v in by_period["FY2019"].values] == [Decimal("4000"), Decimal("3900")]
+
+
+def test_ignores_durations_outside_the_accepted_windows():
+    # The fixture holds a restated 45-day fact and a restated 2017 quarter: neither is detected.
+    assert len(_candidates()) == 3
 
 
 def test_period_label():
-    assert period_label(date(2019, 6, 28)) == "FY2019-Q2"
+    assert period_label(date(2019, 4, 1), date(2019, 6, 28)) == "FY2019-Q2"
+    assert period_label(date(2019, 1, 1), date(2019, 6, 28)) == "FY2019-6M"
+    assert period_label(date(2019, 1, 1), date(2019, 9, 27)) == "FY2019-9M"
+    assert period_label(date(2019, 1, 1), date(2019, 12, 31)) == "FY2019"
+    assert period_label(date(2019, 5, 1), date(2019, 6, 15)) is None
 
 
 def test_to_claim():

@@ -37,6 +37,31 @@
     "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
     "canonical_metric_key": "revenue.total",
     "unit": "USD",
+    "period": "FY2019-6M",
+    "start": "2019-01-01",
+    "end": "2019-06-28",
+    "values": [
+      {
+        "accession": "0000313616-19-000127",
+        "form": "10-Q",
+        "filed": "2019-07-18",
+        "value": "10036500000"
+      },
+      {
+        "accession": "0000313616-20-000120",
+        "form": "10-Q",
+        "filed": "2020-07-23",
+        "value": "8664700000"
+      }
+    ]
+  },
+  {
+    "ticker": "DHR",
+    "cik": "0000313616",
+    "subject": "Danaher Corporation",
+    "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+    "canonical_metric_key": "revenue.total",
+    "unit": "USD",
     "period": "FY2019-Q2",
     "start": "2019-03-30",
     "end": "2019-06-28",
@@ -58,6 +83,31 @@
         "form": "10-Q",
         "filed": "2020-07-23",
         "value": "4444500000"
+      }
+    ]
+  },
+  {
+    "ticker": "DHR",
+    "cik": "0000313616",
+    "subject": "Danaher Corporation",
+    "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+    "canonical_metric_key": "revenue.total",
+    "unit": "USD",
+    "period": "FY2019-9M",
+    "start": "2019-01-01",
+    "end": "2019-09-27",
+    "values": [
+      {
+        "accession": "0000313616-19-000148",
+        "form": "10-Q",
+        "filed": "2019-10-24",
+        "value": "15073800000"
+      },
+      {
+        "accession": "0000313616-20-000142",
+        "form": "10-Q",
+        "filed": "2020-10-22",
+        "value": "13042700000"
       }
     ]
   },
@@ -99,6 +149,37 @@
     "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
     "canonical_metric_key": "revenue.total",
     "unit": "USD",
+    "period": "FY2019",
+    "start": "2019-01-01",
+    "end": "2019-12-31",
+    "values": [
+      {
+        "accession": "0000313616-20-000041",
+        "form": "10-K",
+        "filed": "2020-02-21",
+        "value": "17911100000"
+      },
+      {
+        "accession": "0000313616-21-000045",
+        "form": "10-K",
+        "filed": "2021-02-25",
+        "value": "17911000000"
+      },
+      {
+        "accession": "0000313616-22-000061",
+        "form": "10-K",
+        "filed": "2022-02-23",
+        "value": "17911000000"
+      }
+    ]
+  },
+  {
+    "ticker": "DHR",
+    "cik": "0000313616",
+    "subject": "Danaher Corporation",
+    "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+    "canonical_metric_key": "revenue.total",
+    "unit": "USD",
     "period": "FY2020-Q2",
     "start": "2020-01-01",
     "end": "2020-04-03",
@@ -114,6 +195,31 @@
         "form": "10-Q",
         "filed": "2021-04-22",
         "value": "4343000000"
+      }
+    ]
+  },
+  {
+    "ticker": "DHR",
+    "cik": "0000313616",
+    "subject": "Danaher Corporation",
+    "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+    "canonical_metric_key": "revenue.total",
+    "unit": "USD",
+    "period": "FY2020-6M",
+    "start": "2020-01-01",
+    "end": "2020-07-03",
+    "values": [
+      {
+        "accession": "0000313616-20-000120",
+        "form": "10-Q",
+        "filed": "2020-07-23",
+        "value": "9640500000"
+      },
+      {
+        "accession": "0000313616-21-000098",
+        "form": "10-Q",
+        "filed": "2021-07-22",
+        "value": "9640000000"
       }
     ]
   },
@@ -149,6 +255,31 @@
     "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
     "canonical_metric_key": "revenue.total",
     "unit": "USD",
+    "period": "FY2020-9M",
+    "start": "2020-01-01",
+    "end": "2020-10-02",
+    "values": [
+      {
+        "accession": "0000313616-20-000142",
+        "form": "10-Q",
+        "filed": "2020-10-22",
+        "value": "15523700000"
+      },
+      {
+        "accession": "0000313616-21-000110",
+        "form": "10-Q",
+        "filed": "2021-10-21",
+        "value": "15524000000"
+      }
+    ]
+  },
+  {
+    "ticker": "DHR",
+    "cik": "0000313616",
+    "subject": "Danaher Corporation",
+    "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
+    "canonical_metric_key": "revenue.total",
+    "unit": "USD",
     "period": "FY2020-Q4",
     "start": "2020-07-04",
     "end": "2020-10-02",
@@ -164,6 +295,37 @@
         "form": "10-Q",
         "filed": "2021-10-21",
         "value": "5884000000"
+      }
+    ]
+  },
+  {
+    "ticker": "DHR",
+    "cik": "0000313616",
+    "subject": "Danaher Corporation",
+    "tag": "NetIncomeLoss",
+    "canonical_metric_key": "income.net",
+    "unit": "USD",
+    "period": "FY2019",
+    "start": "2019-01-01",
+    "end": "2019-12-31",
+    "values": [
+      {
+        "accession": "0000313616-20-000041",
+        "form": "10-K",
+        "filed": "2020-02-21",
+        "value": "3008200000"
+      },
+      {
+        "accession": "0000313616-21-000045",
+        "form": "10-K",
+        "filed": "2021-02-25",
+        "value": "3008000000"
+      },
+      {
+        "accession": "0000313616-22-000061",
+        "form": "10-K",
+        "filed": "2022-02-23",
+        "value": "3008000000"
       }
     ]
   },
@@ -199,6 +361,31 @@
     "tag": "NetIncomeLoss",
     "canonical_metric_key": "income.net",
     "unit": "USD",
+    "period": "FY2020-6M",
+    "start": "2020-01-01",
+    "end": "2020-07-03",
+    "values": [
+      {
+        "accession": "0000313616-20-000120",
+        "form": "10-Q",
+        "filed": "2020-07-23",
+        "value": "1522400000"
+      },
+      {
+        "accession": "0000313616-21-000098",
+        "form": "10-Q",
+        "filed": "2021-07-22",
+        "value": "1522000000"
+      }
+    ]
+  },
+  {
+    "ticker": "DHR",
+    "cik": "0000313616",
+    "subject": "Danaher Corporation",
+    "tag": "NetIncomeLoss",
+    "canonical_metric_key": "income.net",
+    "unit": "USD",
     "period": "FY2020-Q3",
     "start": "2020-04-04",
     "end": "2020-07-03",
@@ -214,6 +401,31 @@
         "form": "10-Q",
         "filed": "2021-07-22",
         "value": "927000000"
+      }
+    ]
+  },
+  {
+    "ticker": "DHR",
+    "cik": "0000313616",
+    "subject": "Danaher Corporation",
+    "tag": "NetIncomeLoss",
+    "canonical_metric_key": "income.net",
+    "unit": "USD",
+    "period": "FY2020-9M",
+    "start": "2020-01-01",
+    "end": "2020-10-02",
+    "values": [
+      {
+        "accession": "0000313616-20-000142",
+        "form": "10-Q",
+        "filed": "2020-10-22",
+        "value": "2405900000"
+      },
+      {
+        "accession": "0000313616-21-000110",
+        "form": "10-Q",
+        "filed": "2021-10-21",
+        "value": "2405000000"
       }
     ]
   },
@@ -280,6 +492,31 @@
     "tag": "GrossProfit",
     "canonical_metric_key": "gross_profit",
     "unit": "USD",
+    "period": "FY2019-6M",
+    "start": "2019-01-01",
+    "end": "2019-06-28",
+    "values": [
+      {
+        "accession": "0000313616-19-000127",
+        "form": "10-Q",
+        "filed": "2019-07-18",
+        "value": "5595400000"
+      },
+      {
+        "accession": "0000313616-20-000120",
+        "form": "10-Q",
+        "filed": "2020-07-23",
+        "value": "4838700000"
+      }
+    ]
+  },
+  {
+    "ticker": "DHR",
+    "cik": "0000313616",
+    "subject": "Danaher Corporation",
+    "tag": "GrossProfit",
+    "canonical_metric_key": "gross_profit",
+    "unit": "USD",
     "period": "FY2019-Q2",
     "start": "2019-03-30",
     "end": "2019-06-28",
@@ -301,6 +538,31 @@
         "form": "10-Q",
         "filed": "2020-07-23",
         "value": "2483800000"
+      }
+    ]
+  },
+  {
+    "ticker": "DHR",
+    "cik": "0000313616",
+    "subject": "Danaher Corporation",
+    "tag": "GrossProfit",
+    "canonical_metric_key": "gross_profit",
+    "unit": "USD",
+    "period": "FY2019-9M",
+    "start": "2019-01-01",
+    "end": "2019-09-27",
+    "values": [
+      {
+        "accession": "0000313616-19-000148",
+        "form": "10-Q",
+        "filed": "2019-10-24",
+        "value": "8403800000"
+      },
+      {
+        "accession": "0000313616-20-000142",
+        "form": "10-Q",
+        "filed": "2020-10-22",
+        "value": "7280100000"
       }
     ]
   },
@@ -342,6 +604,37 @@
     "tag": "GrossProfit",
     "canonical_metric_key": "gross_profit",
     "unit": "USD",
+    "period": "FY2019",
+    "start": "2019-01-01",
+    "end": "2019-12-31",
+    "values": [
+      {
+        "accession": "0000313616-20-000041",
+        "form": "10-K",
+        "filed": "2020-02-21",
+        "value": "9983700000"
+      },
+      {
+        "accession": "0000313616-21-000045",
+        "form": "10-K",
+        "filed": "2021-02-25",
+        "value": "9984000000"
+      },
+      {
+        "accession": "0000313616-22-000061",
+        "form": "10-K",
+        "filed": "2022-02-23",
+        "value": "9984000000"
+      }
+    ]
+  },
+  {
+    "ticker": "DHR",
+    "cik": "0000313616",
+    "subject": "Danaher Corporation",
+    "tag": "GrossProfit",
+    "canonical_metric_key": "gross_profit",
+    "unit": "USD",
     "period": "FY2020-Q2",
     "start": "2020-01-01",
     "end": "2020-04-03",
@@ -367,6 +660,31 @@
     "tag": "GrossProfit",
     "canonical_metric_key": "gross_profit",
     "unit": "USD",
+    "period": "FY2020-6M",
+    "start": "2020-01-01",
+    "end": "2020-07-03",
+    "values": [
+      {
+        "accession": "0000313616-20-000120",
+        "form": "10-Q",
+        "filed": "2020-07-23",
+        "value": "5295400000"
+      },
+      {
+        "accession": "0000313616-21-000098",
+        "form": "10-Q",
+        "filed": "2021-07-22",
+        "value": "5295000000"
+      }
+    ]
+  },
+  {
+    "ticker": "DHR",
+    "cik": "0000313616",
+    "subject": "Danaher Corporation",
+    "tag": "GrossProfit",
+    "canonical_metric_key": "gross_profit",
+    "unit": "USD",
     "period": "FY2020-Q3",
     "start": "2020-04-04",
     "end": "2020-07-03",
@@ -382,6 +700,31 @@
         "form": "10-Q",
         "filed": "2021-07-22",
         "value": "2852000000"
+      }
+    ]
+  },
+  {
+    "ticker": "DHR",
+    "cik": "0000313616",
+    "subject": "Danaher Corporation",
+    "tag": "GrossProfit",
+    "canonical_metric_key": "gross_profit",
+    "unit": "USD",
+    "period": "FY2020-9M",
+    "start": "2020-01-01",
+    "end": "2020-10-02",
+    "values": [
+      {
+        "accession": "0000313616-20-000142",
+        "form": "10-Q",
+        "filed": "2020-10-22",
+        "value": "8520900000"
+      },
+      {
+        "accession": "0000313616-21-000110",
+        "form": "10-Q",
+        "filed": "2021-10-21",
+        "value": "8521000000"
       }
     ]
   },
@@ -442,6 +785,31 @@
     "tag": "Revenues",
     "canonical_metric_key": "revenue.total",
     "unit": "USD",
+    "period": "FY2019-6M",
+    "start": "2019-01-01",
+    "end": "2019-06-30",
+    "values": [
+      {
+        "accession": "0000040545-19-000053",
+        "form": "10-Q",
+        "filed": "2019-07-31",
+        "value": "56117000000"
+      },
+      {
+        "accession": "0000040545-20-000046",
+        "form": "10-Q",
+        "filed": "2020-07-29",
+        "value": "45616000000"
+      }
+    ]
+  },
+  {
+    "ticker": "GE",
+    "cik": "0000040545",
+    "subject": "General Electric Company",
+    "tag": "Revenues",
+    "canonical_metric_key": "revenue.total",
+    "unit": "USD",
     "period": "FY2019-Q2",
     "start": "2019-04-01",
     "end": "2019-06-30",
@@ -457,6 +825,37 @@
         "form": "10-Q",
         "filed": "2020-07-29",
         "value": "23414000000"
+      }
+    ]
+  },
+  {
+    "ticker": "GE",
+    "cik": "0000040545",
+    "subject": "General Electric Company",
+    "tag": "Revenues",
+    "canonical_metric_key": "revenue.total",
+    "unit": "USD",
+    "period": "FY2019",
+    "start": "2019-01-01",
+    "end": "2019-12-31",
+    "values": [
+      {
+        "accession": "0000040545-20-000009",
+        "form": "10-K",
+        "filed": "2020-02-24",
+        "value": "95214000000"
+      },
+      {
+        "accession": "0000040545-21-000011",
+        "form": "10-K",
+        "filed": "2021-02-12",
+        "value": "95214000000"
+      },
+      {
+        "accession": "0000040545-22-000008",
+        "form": "10-K",
+        "filed": "2022-02-11",
+        "value": "90221000000"
       }
     ]
   },
@@ -498,6 +897,31 @@
     "tag": "Revenues",
     "canonical_metric_key": "revenue.total",
     "unit": "USD",
+    "period": "FY2020-6M",
+    "start": "2020-01-01",
+    "end": "2020-06-30",
+    "values": [
+      {
+        "accession": "0000040545-20-000046",
+        "form": "10-Q",
+        "filed": "2020-07-29",
+        "value": "38273000000"
+      },
+      {
+        "accession": "0000040545-21-000052",
+        "form": "10-Q",
+        "filed": "2021-07-27",
+        "value": "36294000000"
+      }
+    ]
+  },
+  {
+    "ticker": "GE",
+    "cik": "0000040545",
+    "subject": "General Electric Company",
+    "tag": "Revenues",
+    "canonical_metric_key": "revenue.total",
+    "unit": "USD",
     "period": "FY2020-Q2",
     "start": "2020-04-01",
     "end": "2020-06-30",
@@ -529,6 +953,31 @@
     "tag": "Revenues",
     "canonical_metric_key": "revenue.total",
     "unit": "USD",
+    "period": "FY2020-9M",
+    "start": "2020-01-01",
+    "end": "2020-09-30",
+    "values": [
+      {
+        "accession": "0000040545-20-000058",
+        "form": "10-Q",
+        "filed": "2020-10-28",
+        "value": "57690000000"
+      },
+      {
+        "accession": "0000040545-21-000064",
+        "form": "10-Q",
+        "filed": "2021-10-26",
+        "value": "54823000000"
+      }
+    ]
+  },
+  {
+    "ticker": "GE",
+    "cik": "0000040545",
+    "subject": "General Electric Company",
+    "tag": "Revenues",
+    "canonical_metric_key": "revenue.total",
+    "unit": "USD",
     "period": "FY2020-Q3",
     "start": "2020-07-01",
     "end": "2020-09-30",
@@ -550,6 +999,68 @@
         "form": "10-K",
         "filed": "2022-02-11",
         "value": "18609000000"
+      }
+    ]
+  },
+  {
+    "ticker": "GE",
+    "cik": "0000040545",
+    "subject": "General Electric Company",
+    "tag": "Revenues",
+    "canonical_metric_key": "revenue.total",
+    "unit": "USD",
+    "period": "FY2020",
+    "start": "2020-01-01",
+    "end": "2020-12-31",
+    "values": [
+      {
+        "accession": "0000040545-21-000011",
+        "form": "10-K",
+        "filed": "2021-02-12",
+        "value": "79619000000"
+      },
+      {
+        "accession": "0000040545-22-000008",
+        "form": "10-K",
+        "filed": "2022-02-11",
+        "value": "75833000000"
+      },
+      {
+        "accession": "0000040545-23-000023",
+        "form": "10-K",
+        "filed": "2023-02-10",
+        "value": "75833000000"
+      }
+    ]
+  },
+  {
+    "ticker": "GE",
+    "cik": "0000040545",
+    "subject": "General Electric Company",
+    "tag": "EarningsPerShareDiluted",
+    "canonical_metric_key": "eps.diluted.gaap",
+    "unit": "USD_per_share",
+    "period": "FY2019",
+    "start": "2019-01-01",
+    "end": "2019-12-31",
+    "values": [
+      {
+        "accession": "0000040545-20-000009",
+        "form": "10-K",
+        "filed": "2020-02-24",
+        "value": "-0.62"
+      },
+      {
+        "accession": "0000040545-21-000011",
+        "form": "10-K",
+        "filed": "2021-02-12",
+        "value": "-0.62"
+      },
+      {
+        "accession": "0000040545-22-000008",
+        "form": "10-K",
+        "filed": "2022-02-11",
+        "value": "-4.99"
       }
     ]
   },
@@ -622,6 +1133,31 @@
     "tag": "EarningsPerShareDiluted",
     "canonical_metric_key": "eps.diluted.gaap",
     "unit": "USD_per_share",
+    "period": "FY2020-9M",
+    "start": "2020-01-01",
+    "end": "2020-09-30",
+    "values": [
+      {
+        "accession": "0000040545-20-000058",
+        "form": "10-Q",
+        "filed": "2020-10-28",
+        "value": "0.3"
+      },
+      {
+        "accession": "0000040545-21-000064",
+        "form": "10-Q",
+        "filed": "2021-10-26",
+        "value": "2.41"
+      }
+    ]
+  },
+  {
+    "ticker": "GE",
+    "cik": "0000040545",
+    "subject": "General Electric Company",
+    "tag": "EarningsPerShareDiluted",
+    "canonical_metric_key": "eps.diluted.gaap",
+    "unit": "USD_per_share",
     "period": "FY2020-Q3",
     "start": "2020-07-01",
     "end": "2020-09-30",
@@ -643,6 +1179,68 @@
         "form": "10-K",
         "filed": "2022-02-11",
         "value": "-1.09"
+      }
+    ]
+  },
+  {
+    "ticker": "GE",
+    "cik": "0000040545",
+    "subject": "General Electric Company",
+    "tag": "EarningsPerShareDiluted",
+    "canonical_metric_key": "eps.diluted.gaap",
+    "unit": "USD_per_share",
+    "period": "FY2020",
+    "start": "2020-01-01",
+    "end": "2020-12-31",
+    "values": [
+      {
+        "accession": "0000040545-21-000011",
+        "form": "10-K",
+        "filed": "2021-02-12",
+        "value": "0.58"
+      },
+      {
+        "accession": "0000040545-22-000008",
+        "form": "10-K",
+        "filed": "2022-02-11",
+        "value": "4.63"
+      },
+      {
+        "accession": "0000040545-23-000023",
+        "form": "10-K",
+        "filed": "2023-02-10",
+        "value": "4.63"
+      }
+    ]
+  },
+  {
+    "ticker": "GE",
+    "cik": "0000040545",
+    "subject": "General Electric Company",
+    "tag": "EarningsPerShareBasic",
+    "canonical_metric_key": "eps.basic.gaap",
+    "unit": "USD_per_share",
+    "period": "FY2019",
+    "start": "2019-01-01",
+    "end": "2019-12-31",
+    "values": [
+      {
+        "accession": "0000040545-20-000009",
+        "form": "10-K",
+        "filed": "2020-02-24",
+        "value": "-0.62"
+      },
+      {
+        "accession": "0000040545-21-000011",
+        "form": "10-K",
+        "filed": "2021-02-12",
+        "value": "-0.62"
+      },
+      {
+        "accession": "0000040545-22-000008",
+        "form": "10-K",
+        "filed": "2022-02-11",
+        "value": "-4.99"
       }
     ]
   },
@@ -715,6 +1313,31 @@
     "tag": "EarningsPerShareBasic",
     "canonical_metric_key": "eps.basic.gaap",
     "unit": "USD_per_share",
+    "period": "FY2020-9M",
+    "start": "2020-01-01",
+    "end": "2020-09-30",
+    "values": [
+      {
+        "accession": "0000040545-20-000058",
+        "form": "10-Q",
+        "filed": "2020-10-28",
+        "value": "0.3"
+      },
+      {
+        "accession": "0000040545-21-000064",
+        "form": "10-Q",
+        "filed": "2021-10-26",
+        "value": "2.41"
+      }
+    ]
+  },
+  {
+    "ticker": "GE",
+    "cik": "0000040545",
+    "subject": "General Electric Company",
+    "tag": "EarningsPerShareBasic",
+    "canonical_metric_key": "eps.basic.gaap",
+    "unit": "USD_per_share",
     "period": "FY2020-Q3",
     "start": "2020-07-01",
     "end": "2020-09-30",
@@ -736,6 +1359,37 @@
         "form": "10-K",
         "filed": "2022-02-11",
         "value": "-1.09"
+      }
+    ]
+  },
+  {
+    "ticker": "GE",
+    "cik": "0000040545",
+    "subject": "General Electric Company",
+    "tag": "EarningsPerShareBasic",
+    "canonical_metric_key": "eps.basic.gaap",
+    "unit": "USD_per_share",
+    "period": "FY2020",
+    "start": "2020-01-01",
+    "end": "2020-12-31",
+    "values": [
+      {
+        "accession": "0000040545-21-000011",
+        "form": "10-K",
+        "filed": "2021-02-12",
+        "value": "0.58"
+      },
+      {
+        "accession": "0000040545-22-000008",
+        "form": "10-K",
+        "filed": "2022-02-11",
+        "value": "4.63"
+      },
+      {
+        "accession": "0000040545-23-000023",
+        "form": "10-K",
+        "filed": "2023-02-10",
+        "value": "4.63"
       }
     ]
   },
@@ -777,6 +1431,37 @@
     "tag": "IncomeLossFromContinuingOperationsPerDilutedShare",
     "canonical_metric_key": "eps.diluted.continuing.gaap",
     "unit": "USD_per_share",
+    "period": "FY2019",
+    "start": "2019-01-01",
+    "end": "2019-12-31",
+    "values": [
+      {
+        "accession": "0000040545-20-000009",
+        "form": "10-K",
+        "filed": "2020-02-24",
+        "value": "-0.01"
+      },
+      {
+        "accession": "0000040545-21-000011",
+        "form": "10-K",
+        "filed": "2021-02-12",
+        "value": "-0.01"
+      },
+      {
+        "accession": "0000040545-22-000008",
+        "form": "10-K",
+        "filed": "2022-02-11",
+        "value": "-0.98"
+      }
+    ]
+  },
+  {
+    "ticker": "GE",
+    "cik": "0000040545",
+    "subject": "General Electric Company",
+    "tag": "IncomeLossFromContinuingOperationsPerDilutedShare",
+    "canonical_metric_key": "eps.diluted.continuing.gaap",
+    "unit": "USD_per_share",
     "period": "FY2020-Q1",
     "start": "2020-01-01",
     "end": "2020-03-31",
@@ -798,6 +1483,31 @@
         "form": "10-K",
         "filed": "2022-02-11",
         "value": "5.63"
+      }
+    ]
+  },
+  {
+    "ticker": "GE",
+    "cik": "0000040545",
+    "subject": "General Electric Company",
+    "tag": "IncomeLossFromContinuingOperationsPerDilutedShare",
+    "canonical_metric_key": "eps.diluted.continuing.gaap",
+    "unit": "USD_per_share",
+    "period": "FY2020-6M",
+    "start": "2020-01-01",
+    "end": "2020-06-30",
+    "values": [
+      {
+        "accession": "0000040545-20-000046",
+        "form": "10-Q",
+        "filed": "2020-07-29",
+        "value": "0.46"
+      },
+      {
+        "accession": "0000040545-21-000052",
+        "form": "10-Q",
+        "filed": "2021-07-27",
+        "value": "0.55"
       }
     ]
   },
@@ -839,6 +1549,31 @@
     "tag": "IncomeLossFromContinuingOperationsPerDilutedShare",
     "canonical_metric_key": "eps.diluted.continuing.gaap",
     "unit": "USD_per_share",
+    "period": "FY2020-9M",
+    "start": "2020-01-01",
+    "end": "2020-09-30",
+    "values": [
+      {
+        "accession": "0000040545-20-000058",
+        "form": "10-Q",
+        "filed": "2020-10-28",
+        "value": "0.32"
+      },
+      {
+        "accession": "0000040545-21-000064",
+        "form": "10-Q",
+        "filed": "2021-10-26",
+        "value": "3.39"
+      }
+    ]
+  },
+  {
+    "ticker": "GE",
+    "cik": "0000040545",
+    "subject": "General Electric Company",
+    "tag": "IncomeLossFromContinuingOperationsPerDilutedShare",
+    "canonical_metric_key": "eps.diluted.continuing.gaap",
+    "unit": "USD_per_share",
     "period": "FY2020-Q3",
     "start": "2020-07-01",
     "end": "2020-09-30",
@@ -860,6 +1595,37 @@
         "form": "10-K",
         "filed": "2022-02-11",
         "value": "-1.04"
+      }
+    ]
+  },
+  {
+    "ticker": "GE",
+    "cik": "0000040545",
+    "subject": "General Electric Company",
+    "tag": "IncomeLossFromContinuingOperationsPerDilutedShare",
+    "canonical_metric_key": "eps.diluted.continuing.gaap",
+    "unit": "USD_per_share",
+    "period": "FY2020",
+    "start": "2020-01-01",
+    "end": "2020-12-31",
+    "values": [
+      {
+        "accession": "0000040545-21-000011",
+        "form": "10-K",
+        "filed": "2021-02-12",
+        "value": "0.59"
+      },
+      {
+        "accession": "0000040545-22-000008",
+        "form": "10-K",
+        "filed": "2022-02-11",
+        "value": "5.46"
+      },
+      {
+        "accession": "0000040545-23-000023",
+        "form": "10-K",
+        "filed": "2023-02-10",
+        "value": "5.46"
       }
     ]
   }

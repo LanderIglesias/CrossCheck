@@ -1,6 +1,6 @@
 # Evaluación de CrossCheck: casos reales difíciles + errores inyectados
 
-Fecha: 2026-10-29. Estado: diseño revisado, pendiente de aprobación del usuario.
+Fecha: 2026-10-29. Estado: aprobado por el usuario el 2026-10-30; siguiente paso, plan de implementación (superpowers:writing-plans).
 
 ## Intención y por qué
 

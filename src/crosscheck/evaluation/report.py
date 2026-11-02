@@ -139,7 +139,12 @@ def summarize(
         }
 
     spent = budget["spent_usd"]
+    # Controls and blind pairs are different metrics but can be the same judge prompt (Ruling 15).
+    blind_keys = {r.get("cache_key") for r in of("llm", "real_blind")} - {None}
     return {
+        "controls_overlapping_blind": len(
+            {r.get("cache_key") for r in of("llm", "real_consistent_control")} & blind_keys
+        ),
         "real": {c: _real_block(of(c, *_REAL_SOURCES)) for c in _CHECKERS},
         "injected": {c: _injected_block(of(c, "injected")) for c in _CHECKERS},
         "false_alarms": {c: _discrepant_rate(of(c, "real_consistent_control")) for c in _CHECKERS},

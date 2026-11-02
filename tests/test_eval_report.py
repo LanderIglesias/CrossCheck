@@ -167,6 +167,7 @@ def test_cost_counts_each_cache_key_once_first_row_in_plan_order_pays():
     assert co["controls_spent_usd"] == 0.0
     assert co["by_source"]["injected"]["cost_usd"] == pytest.approx(0.2)
     assert co["stability_spent_usd"] == pytest.approx(0.4)
+    assert summarize(rows, BUDGET, False)["controls_overlapping_blind"] == 1
 
 
 def test_partial_flag_propagates_to_report():

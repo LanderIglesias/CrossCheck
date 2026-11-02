@@ -795,7 +795,7 @@
   }
 
   // phase 10 evaluation
-  var PCT = function(x){ return (x * 100).toFixed(x > 0 && x < 0.1 ? 1 : 0) + '%'; };
+  var PCT = function(x){ return (x * 100).toFixed(1) + '%'; };
   var CI = function(ci){ return ' <span class="na">(' + PCT(ci[0]) + '–' + PCT(ci[1]) + ')</span>'; };
   var NA = '<span class="na">n/a</span>';
   function rate(r){ return r.recall === null ? NA : PCT(r.recall) + CI(r.recall_ci); }
@@ -830,8 +830,10 @@
     keys.forEach(function(k, i){
       out += '<text x="' + x(i) + '" y="' + (H - 14) + '" text-anchor="middle">' + (W < 480 ? SIZE_LABEL[k].replace('%', '') : SIZE_LABEL[k]) + '</text>';
     });
-    out += '<line x1="' + x(2) + '" x2="' + x(2) + '" y1="' + m.t + '" y2="' + (m.t + ih) + '" stroke="#5c6b66" stroke-dasharray="3 4"/>';
-    out += '<text x="' + (x(2) + 6) + '" y="' + (y(0.12)) + '">0.5% tolerance</text>';
+    // the 0.5% tolerance sits between the 0.49% and 0.51% points
+    var tx = (x(1) + x(2)) / 2;
+    out += '<line x1="' + tx + '" x2="' + tx + '" y1="' + m.t + '" y2="' + (m.t + ih) + '" stroke="#5c6b66" stroke-dasharray="3 4"/>';
+    out += '<text x="' + (tx + 6) + '" y="' + (y(0.12)) + '">0.5% tolerance</text>';
     [['rules', 'var(--series-rules)', 'c'], ['llm', 'var(--series-llm)', 's']].forEach(function(s){
       var pts = keys.map(function(k, i){ return [x(i), y(inj[s[0]].value[k].recall), inj[s[0]].value[k], k]; });
       out += '<polyline fill="none" stroke="' + s[1] + '" stroke-width="2" stroke-linejoin="round" points="' + pts.map(function(p){ return p[0] + ',' + p[1]; }).join(' ') + '"/>';
@@ -843,7 +845,7 @@
         out += '<g class="mark" tabindex="0" data-tip="' + tip + '"><title>' + tip + '</title><circle cx="' + p[0] + '" cy="' + p[1] + '" r="14" fill="transparent"/>' + shape + '</g>';
       });
     });
-    // direct labels at the first point: the series are apart there, they overlap at 100%
+    // direct labels beside the 1% and 2% points: the series are apart there, they overlap at 100%
     out += '<text class="lbl" x="' + (x(3) - 20) + '" y="' + (y(inj.llm.value[keys[3]].recall) + 34) + '" style="fill:var(--ink)">LLM judge</text>';
     out += '<text class="lbl" x="' + (x(4) - 20) + '" y="' + (y(1) - 10) + '" style="fill:var(--ink)">Rules</text>';
     host.querySelector('.svg-host').innerHTML = out + '</svg>';
@@ -910,11 +912,10 @@
       tile('LLM cost, injected pairs', '$' + cost.by_source.injected.cost_usd.toFixed(2), '$' + cost.by_source.injected.cost_per_detected_inconsistency.toFixed(3) + ' per detected inconsistency (' + cost.by_source.injected.detected + ')') + '</div></div>';
 
     var faHtml = '<div class="block"><h3>False alarms and total cost</h3>' +
-      '<p class="block-note">False alarms are measured on the ' + fa.rules.n + ' unmutated consistent base pairs (the ones errors are injected into), a different set from the ' + r.rules.blind.n + ' blind pairs above. Total cost counts every judge call, including those served from cache.</p>' +
+      '<p class="block-note">False alarms are measured on the ' + fa.rules.n + ' unmutated consistent base pairs (the ones errors are injected into), a different set from the ' + r.rules.blind.n + ' blind pairs above. Total cost counts every judge call, including those served from cache. What was paid in each run is in eval/phase10/runs.md. ' + ev.controls_overlapping_blind + ' of the ' + fa.rules.n + ' base pairs are the same judge prompt as a blind pair, so a false alarm can show up in both counts (the numbers are never added together).</p>' +
       '<div class="tiles">' +
       ['rules', 'llm'].map(function(ck){ return tile('False alarms · ' + NAMES[ck], fa[ck].hits + ' / ' + fa[ck].n, PCT(fa[ck].rate) + CI(fa[ck].ci)); }).join('') +
-      tile('Cost of the whole evaluation', '$' + cost.evaluation_cost_usd.toFixed(2), 'all calls, cached ones included') +
-      tile('Paid in the last run', '$' + cost.spent_usd.toFixed(2), cost.live_calls + ' live calls') + '</div></div>';
+      tile('Cost of the whole evaluation', '$' + cost.evaluation_cost_usd.toFixed(2), 'all calls, cached ones included') + '</div></div>';
 
     el.innerHTML = partial + realHtml + injHtml + faHtml;
     var host = document.getElementById('sens-chart');

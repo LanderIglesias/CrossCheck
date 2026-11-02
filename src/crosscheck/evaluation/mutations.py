@@ -111,7 +111,9 @@ def mutated_value(anchor: Decimal, size: Decimal, direction: int) -> Decimal:
 
 
 def _mutation_id(key: str, mtype: MutationType, size: Decimal | None, direction: int | None) -> str:
-    return hashlib.sha1(f"{key}|{mtype}|{size}|{direction}".encode()).hexdigest()[:12]
+    return hashlib.sha1(
+        f"{key}|{mtype}|{size}|{direction}".encode(), usedforsecurity=False
+    ).hexdigest()[:12]
 
 
 def generate_mutations(
@@ -141,7 +143,9 @@ def generate_mutations(
         anchor = a.value
         if anchor is not None and anchor != 0:
             for size in VALUE_SIZES:
-                rng = random.Random(f"{seed}:{key}:{MutationType.VALUE}:{size}")
+                rng = random.Random(  # nosec B311 - seeded, not security
+                    f"{seed}:{key}:{MutationType.VALUE}:{size}"
+                )
                 direction = rng.choice((-1, 1))
                 new_b = b.model_copy(update={"value": mutated_value(anchor, size, direction)})
                 add(key, MutationType.VALUE, size, direction, a, new_b)

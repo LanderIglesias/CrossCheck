@@ -72,7 +72,7 @@ class Item:
 
 
 def _short(text: str) -> str:
-    return hashlib.sha1(text.encode()).hexdigest()[:12]
+    return hashlib.sha1(text.encode(), usedforsecurity=False).hexdigest()[:12]
 
 
 def base_pairs(claims: list[Claim], gold: dict[frozenset[int], str]) -> list[tuple[Claim, Claim]]:
@@ -92,7 +92,7 @@ def stratified(muts: list[Mutation], n: int, seed: int) -> list[Mutation]:
     cells: dict[tuple[str, str], list[Mutation]] = defaultdict(list)
     for m in sorted(muts, key=lambda m: m.mutation_id):
         cells[(m.type.value, str(m.size))].append(m)
-    rng = random.Random(seed)
+    rng = random.Random(seed)  # nosec B311 - seeded, not security
     queues = [cells[k] for k in sorted(cells)]
     for q in queues:
         rng.shuffle(q)
@@ -200,7 +200,7 @@ def build_plan(seed: int, skip_stability: bool = False) -> Plan:
         if planned * PHASE8_ESTIMATE_USD <= SOFT_CAP_USD or len(base) <= 1:
             break
         reduced = True
-        base = random.Random(seed).sample(base, len(base) - 1)
+        base = random.Random(seed).sample(base, len(base) - 1)  # nosec B311 - seeded
         base.sort(key=lambda p: pair_key(*p))
 
     mut_items = [
@@ -223,7 +223,7 @@ def build_plan(seed: int, skip_stability: bool = False) -> Plan:
             i for i in real if i.source == "real_blind"
         ]
         ctrl = list(controls)
-        random.Random(seed).shuffle(ctrl)
+        random.Random(seed).shuffle(ctrl)  # nosec B311 - seeded, not security
         stab += (real_pool + ctrl)[:STABILITY_REAL]
 
     # After the stability pick above, so the repeats (a different cache key each) stay the same.

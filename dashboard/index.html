@@ -877,13 +877,13 @@
     ['rules', 'llm'].forEach(function(ck){
       var b = r[ck].blind;
       rows.push(row('Blind subset<br><span class="mono na">gold: consistent (hand-labelled)</span>', ck, b.n, (b.tp + b.fp) + ' / ' + b.n,
-        '<td class="num">' + NA + '</td><td class="num">' + NA + '</td>'));
+        '<td class="num">' + prec(b) + '</td><td class="num">' + NA + '</td>'));
     });
     var realHtml = '<div class="block block-real"><h3>Real disagreements</h3>' +
       '<p class="block-note">Pairs from the filings themselves, with the cause of each difference reviewed by hand. “Flagged” counts pairs the checker called discrepant. Recall is n/a wherever the gold label has no discrepancy, as in the whole blind subset.</p>' +
       table(['Cause', 'Checker', 'n', 'Flagged', 'Precision (95% CI)', 'Recall (95% CI)'], rows) +
       '<p class="finding-callout"><b>Finding:</b> both checkers flag all ' + r.rules.by_cause.stock_split.n + ' stock-split pairs as discrepant, yet the gold label is consistent. A split changes the per-share figure without changing the facts, and neither checker knows that.</p>' +
-      '<div class="tiles">' + tile('Verdict flips on repeat', PCT(st.real.flip_rate), st.real.pairs + ' real pairs, ' + ev.stability.repeats + ' repeats, modal agreement ' + PCT(st.real.modal_agreement)) +
+      '<div class="tiles">' + tile('LLM judge: verdict flips on repeat', PCT(st.real.flip_rate), st.real.pairs + ' real pairs, ' + ev.stability.repeats + ' repeats, modal agreement ' + PCT(st.real.modal_agreement)) +
       tile('LLM cost, real pairs', '$' + cost.by_source.real.cost_usd.toFixed(2), '$' + cost.by_source.real.cost_per_detected_inconsistency.toFixed(3) + ' per detected inconsistency (' + cost.by_source.real.detected + ')') + '</div></div>';
 
     var others = [];
@@ -906,7 +906,7 @@
       '<div class="chart-wrap" id="sens-chart"><div class="svg-host"></div><div class="chart-tip" hidden></div></div>' +
       '<details><summary>Table view of the curve</summary>' + table(['Size', 'Checker', 'n', 'Detected', 'Recall (95% CI)'], sizeRows) + '</details>' +
       '<h3 style="margin-top:28px;font-size:17px;">Other kinds of injected error</h3>' + table(['Error', 'Checker', 'n', 'Detected', 'Recall (95% CI)'], others) +
-      '<div class="tiles">' + tile('Verdict flips on repeat', PCT(st.injected.flip_rate), st.injected.pairs + ' injected pairs, ' + ev.stability.repeats + ' repeats, modal agreement ' + PCT(st.injected.modal_agreement)) +
+      '<div class="tiles">' + tile('LLM judge: verdict flips on repeat', PCT(st.injected.flip_rate), st.injected.pairs + ' injected pairs, ' + ev.stability.repeats + ' repeats, modal agreement ' + PCT(st.injected.modal_agreement)) +
       tile('LLM cost, injected pairs', '$' + cost.by_source.injected.cost_usd.toFixed(2), '$' + cost.by_source.injected.cost_per_detected_inconsistency.toFixed(3) + ' per detected inconsistency (' + cost.by_source.injected.detected + ')') + '</div></div>';
 
     var faHtml = '<div class="block"><h3>False alarms and total cost</h3>' +

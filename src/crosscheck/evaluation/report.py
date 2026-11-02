@@ -250,7 +250,7 @@ def render_report(summary: dict[str, Any]) -> str:
         "## E. Coste",
         "",
         f"Llamadas en vivo: {co['live_calls']}, fallidas: {co['failed_calls']}, "
-        f"tokens: {co['input_tokens']} entrada / {co['output_tokens']} salida, "
+        f"tokens: {co['input_tokens']} entrada / {co['output_tokens']} salida",
         "",
         f"Coste de la evaluación (todas las llamadas, también las servidas de caché, "
         f"a precio de cuando se pagaron): {co['evaluation_cost_usd']:.4f} $ "

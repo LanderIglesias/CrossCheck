@@ -803,7 +803,7 @@
   var NAMES = { rules: 'Rules', llm: 'LLM judge' };
   var SIZE_LABEL = { '0.003':'0.3%', '0.0049':'0.49%', '0.0051':'0.51%', '0.01':'1%', '0.02':'2%', '0.05':'5%', '0.10':'10%' };
   var CAUSE_LABEL = { recast_discontinued_ops:'Recast for discontinued ops', rounding:'Presentation rounding', stock_split:'Stock split' };
-  var CAUSE_GOLD = { recast_discontinued_ops:'discrepant', rounding:'consistent', stock_split:'consistent' };
+  var CAUSE_GOLD = { recast_discontinued_ops:'discrepant', rounding:'consistent', stock_split:'ambiguous' };
   var OTHER_LABEL = { unit_x1000:'Unit error ×1000', period_ytd:'Period swapped for year to date', period_prev_quarter:'Period swapped for previous quarter' };
 
   function table(head, rows){
@@ -882,7 +882,7 @@
     var realHtml = '<div class="block block-real"><h3>Real disagreements</h3>' +
       '<p class="block-note">Pairs from the filings themselves, with the cause of each difference reviewed by hand. “Flagged” counts pairs the checker called discrepant. Recall is n/a wherever the gold label has no discrepancy, as in the whole blind subset.</p>' +
       table(['Cause', 'Checker', 'n', 'Flagged', 'Precision (95% CI)', 'Recall (95% CI)'], rows) +
-      '<p class="finding-callout"><b>Finding:</b> both checkers flag all ' + r.rules.by_cause.stock_split.n + ' stock-split pairs as discrepant, yet the gold label is consistent. A split changes the per-share figure without changing the facts, and neither checker knows that.</p>' +
+      '<p class="finding-callout"><b>Finding:</b> both checkers flag all ' + r.rules.by_cause.stock_split.n + ' stock-split pairs as discrepant, yet the gold label is ambiguous: the figures are not comparable until adjusted for the split. A split changes the per-share figure without changing the facts, and neither checker knows that.</p>' +
       '<div class="tiles">' + tile('LLM judge: verdict flips on repeat', PCT(st.real.flip_rate), st.real.pairs + ' real pairs, ' + ev.stability.repeats + ' repeats, modal agreement ' + PCT(st.real.modal_agreement)) +
       tile('LLM cost, real pairs', '$' + cost.by_source.real.cost_usd.toFixed(2), '$' + cost.by_source.real.cost_per_detected_inconsistency.toFixed(3) + ' per detected inconsistency (' + cost.by_source.real.detected + ')') + '</div></div>';
 

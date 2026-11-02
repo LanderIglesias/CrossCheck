@@ -16,6 +16,13 @@ table, the two real disagreement cases, and the Phase 0-8 timeline. Regenerated 
 
 **https://landerworks.com/crosscheck/**
 
+## Status: Phase 10 — evaluation of both checkers
+
+Evaluated the rule-based checker and the LLM judge on real hard cases (restatements with a
+filing-verified cause, plus blind-labeled pairs) and on injected errors of known size, with judge
+stability and cost. Real and injected results are kept apart. See
+[Evaluation (Phase 10)](#evaluation-phase-10) below and `eval/phase10/report.md`.
+
 ## Status: Phase 9 — dashboard/report published
 
 Built `dashboard/index.html` + `dashboard/data.json`, a self-contained HTML/CSS/JS report over a
@@ -470,6 +477,240 @@ python scripts/eval_llm_judge.py   # real Anthropic API calls on cache miss; fre
 Requires `ANTHROPIC_API_KEY` in `.env` (see `.env.example`) — makes real, paid Claude Sonnet 5
 calls the first time each candidate pair is judged (~$0.29 across all 5 companies' full pair set),
 then reuses `data/raw/llm_cache/` on every subsequent run at no cost. Read-only against the DB.
+
+## Evaluation (Phase 10)
+
+Phases 4 and 5 scored both checkers on the 49 hand-labeled pairs. Phase 10 asks a harder question:
+what do the **rule-based checker** (`consistency/checker.py`, deterministic, `TOLERANCE_PCT = 0.5%`)
+and the **LLM judge** (`consistency/llm_judge.py`, Claude Sonnet 5) do on real hard cases and on
+errors of a known size? Every number below comes from `eval/phase10/report.md` and
+`eval/phase10/results.json` (seed 20261030, `partial: false`, 0 errors in every cell). Source A
+(real) and source B (injected) are never combined in one table or one figure. Intervals are 95%
+Wilson intervals. The dashboard shows the same results.
+
+Neither checker, the judge prompt nor the judge model was changed for this evaluation. Where they
+fail, the failure is reported, not patched (see "What the judge gets wrong").
+
+### Method
+
+**A. Real hard cases.** Same metric, subject and period but different values across filings, none
+of them extraction errors.
+
+- *Restatements.* `scripts/eval_phase10_detect_restatements.py` scans EDGAR companyfacts for
+  (tag, unit, period) durations ending in 2019-2020, reported in 10-Q/10-K filings, with at least two
+  distinct values across accessions. It found 58 candidates (DHR 28, GE 30; PPC, TRV and ADTN 0). The
+  exploratory count in the design spec was DHR 39 and GE 30; the DHR gap is unexplained and the
+  filters were not tuned to match it. The candidates are frozen in
+  `eval/phase10/restatement_candidates.json` because `data/raw/` is gitignored and companyfacts keeps
+  growing (frozen 2026-10-30).
+- *Cause verified by quote.* A candidate only enters if the later filing states why the value
+  changed. `eval/phase10/restatement_causes.json` holds 16 root causes (10
+  `recast_discontinued_ops`, 2 `stock_split`, 4 `rounding`), each with a literal quote from the filing
+  text and the (tag, period, accession) pairs it covers: 63 pairs in total. Quotes were checked as
+  substrings of the extracted filing text, and the user reviewed all 16 causes (`user_reviewed:
+  true`). This file is what lets the evaluation say *why* two values differ. A checker sees two
+  numbers; the filing's own context is what shows whether the difference is an error.
+- *Gold.* `recast_discontinued_ops`: `discrepant` (the figure changed, and flagging it is the
+  product's job). `rounding` (18 DHR pairs where only presentation rounding differs, relative
+  difference at most 0.0566%): `consistent`. `stock_split` (GE's 1-for-8 reverse split changes
+  per-share data while no fact changes): not an error and not comparable without adjusting (stored
+  as `ambiguous`), so a `discrepant` verdict counts as a false alarm.
+- *Blind labeling.* `scripts/eval_phase10_export_blind.py` exports the candidate pairs nobody had
+  labeled, without the checkers' predictions, to `eval/phase10/blind_pairs.csv`. The user (Lander)
+  labeled 42 pairs following `src/crosscheck/labeling/protocol.md`: all 42 are `consistent`.
+- *Controls.* 41 real `consistent` pairs from the gold set, unmutated, measure false alarms.
+
+**B. Injected errors.** In-memory copies of the 41 controls with a known error (`Claim` objects;
+nothing is written to `claims` or `gold_labels`). Gold is always `discrepant`. Types: value changes
+of 0.3%, 0.49%, 0.51%, 1%, 2%, 5% and 10% (0.49% and 0.51% sit either side of the rules' 0.5%
+tolerance), a unit change by x1000, and a period shift (previous quarter, or year-to-date). 377
+mutations, seeded.
+
+**Stability.** 30 real and 30 injected pairs judged 5 times each (the cache key includes the
+repetition index, so repeats are real calls and the existing cache is untouched).
+
+## Results A: real hard cases
+
+Precision and recall of `discrepant`. 63 restatement pairs plus 42 blind pairs make 105 real pairs.
+
+### rules (16 root causes)
+
+| Subset | n | Precision | Recall |
+|---|---|---|---|
+| restatements | 63 | 60.0% [45.5%, 73.0%] | 100.0% [87.5%, 100.0%] |
+| blind | 42 | 0.0% [0.0%, 56.2%] | n/a |
+| together (real only) | 105 | 56.2% [42.3%, 69.3%] | 100.0% [87.5%, 100.0%] |
+| cause: recast_discontinued_ops | 27 | 100.0% [87.5%, 100.0%] | 100.0% [87.5%, 100.0%] |
+| cause: rounding | 18 | n/a | n/a |
+| cause: stock_split | 18 | 0.0% [0.0%, 17.6%] | n/a |
+
+### llm (16 root causes)
+
+| Subset | n | Precision | Recall |
+|---|---|---|---|
+| restatements | 63 | 60.0% [45.5%, 73.0%] | 100.0% [87.5%, 100.0%] |
+| blind | 42 | 0.0% [0.0%, 79.3%] | n/a |
+| together (real only) | 105 | 58.7% [44.3%, 71.7%] | 100.0% [87.5%, 100.0%] |
+| cause: recast_discontinued_ops | 27 | 100.0% [87.5%, 100.0%] | 100.0% [87.5%, 100.0%] |
+| cause: rounding | 18 | n/a | n/a |
+| cause: stock_split | 18 | 0.0% [0.0%, 17.6%] | n/a |
+
+How to read it:
+
+- **Both checkers behave the same on restatements.** All 27 `recast_discontinued_ops` pairs are
+  flagged (the figure really changed) and none of the 18 `rounding` pairs are. Overall precision is
+  60.0% for both because of the next point.
+- **`stock_split` is a limitation, not correct behaviour.** All 18 pairs are false alarms for both
+  checkers: a reverse split changes the per-share figure while the facts stay the same, and neither
+  checker knows about splits. Recall is n/a (the subset has no positives), not 100%. The
+  human-verified cause is what shows these pairs are not errors.
+- **The blind subset only measures false alarms.** It has 42 pairs, all `consistent`, so there are no
+  positives and recall is n/a. Precision 0.0% means everything a checker flagged was a false alarm:
+  3 of 42 pairs for rules, 1 of 42 for the LLM. It is not "0 of (0+1)" and not a meaningless
+  artifact; the wide intervals ([0.0%, 56.2%] and [0.0%, 79.3%]) reflect how few pairs were flagged.
+
+## Results B: injected errors
+
+Recall of `discrepant`, by type and size. Source B only; no real pairs here.
+
+**The rules curve is a step by construction** (tolerance 0.5%): they detect 0% at 0.3% and 0.49%
+and 100% from 0.51%. The misses below the tolerance are expected by design, not a finding, and
+"100% recall of the deterministic layer" would be wrong without that qualification.
+
+### rules
+
+| Type | Size | n | Recall | 95% CI |
+|---|---|---|---|---|
+| period_prev_quarter | n/a | 29 | 100.0% | [88.3%, 100.0%] |
+| period_ytd | n/a | 20 | 100.0% | [83.9%, 100.0%] |
+| unit_x1000 | n/a | 41 | 100.0% | [91.4%, 100.0%] |
+| value | 0.003 | 41 | 0.0% | [0.0%, 8.6%] |
+| value | 0.0049 | 41 | 0.0% | [0.0%, 8.6%] |
+| value | 0.0051 | 41 | 100.0% | [91.4%, 100.0%] |
+| value | 0.01 | 41 | 100.0% | [91.4%, 100.0%] |
+| value | 0.02 | 41 | 100.0% | [91.4%, 100.0%] |
+| value | 0.05 | 41 | 100.0% | [91.4%, 100.0%] |
+| value | 0.10 | 41 | 100.0% | [91.4%, 100.0%] |
+
+### llm
+
+| Type | Size | n | Recall | 95% CI |
+|---|---|---|---|---|
+| period_prev_quarter | n/a | 29 | 100.0% | [88.3%, 100.0%] |
+| period_ytd | n/a | 20 | 100.0% | [83.9%, 100.0%] |
+| unit_x1000 | n/a | 41 | 51.2% | [36.5%, 65.7%] |
+| value | 0.003 | 41 | 51.2% | [36.5%, 65.7%] |
+| value | 0.0049 | 41 | 65.9% | [50.5%, 78.4%] |
+| value | 0.0051 | 41 | 65.9% | [50.5%, 78.4%] |
+| value | 0.01 | 41 | 75.6% | [60.7%, 86.2%] |
+| value | 0.02 | 41 | 82.9% | [68.7%, 91.5%] |
+| value | 0.05 | 41 | 97.6% | [87.4%, 99.6%] |
+| value | 0.10 | 41 | 100.0% | [91.4%, 100.0%] |
+
+- **Rules:** 100% on unit x1000 and on both period shifts; the step sits exactly at 0.5%.
+- **LLM:** a smooth curve, 100% on period shifts and at 10%. It flags 51.2% of the 0.3% differences
+  and 65.9% of the 0.49% ones, stricter than the 0.5% tolerance written in its own prompt.
+
+### What the judge gets wrong (reported, not patched)
+
+The judge detects only 51.2% of x1000 unit errors (21 of 41). Where it misses, its rationale treats
+the slip as a typo: "after converting units they match exactly, and a unit conversion alone is not
+evidence of discrepancy". The design spec leaves improving the checkers out of scope, and changing
+the prompt would invalidate the live calls already made, so the prompt was not touched. Mitigation
+already in the product: the rule-based checker catches 100% of unit errors, so the two checkers
+complement each other.
+
+## False alarms (real `consistent` controls, unmutated)
+
+| Checker | n | `discrepant` rate | 95% CI |
+|---|---|---|---|
+| rules | 41 | 2.4% | [0.4%, 12.6%] |
+| llm | 41 | 2.4% | [0.4%, 12.6%] |
+
+One of 41 for each checker. With n = 41 the interval reaches 12.6%, so this is not evidence that the
+false-alarm rate is acceptable for production.
+
+## Judge stability
+
+5 repetitions, 0 errors. The judge does not set `temperature` (`llm_judge.py` uses the API default),
+so stability is an empirical result, not a configuration guarantee. Real and injected are reported
+separately.
+
+| Source | Pairs | Change rate | Agreement with the mode |
+|---|---|---|---|
+| real | 30 | 0.0% | 100.0% |
+| injected | 30 | 3.3% | 99.3% |
+
+## Cost
+
+The evaluation cost is **3.0504 $**: every judge call the evaluation uses, including those served
+from the on-disk cache, at the price paid when they were made (controls 0.1456 $, stability
+1.1037 $). About 0.37 $ of that was paid in Phase 8 (2026-09-11) and reused from the cache; about
+2.67 $ was paid in Phase 10 (pilot 0.0371 $, first run 1.3035 $, second run 1.3338 $). The 5 $ cap
+was cumulative across runs.
+
+| Source | Cost | Detected | Cost per detected inconsistency |
+|---|---|---|---|
+| real | 0.3806 $ | 27 | 0.0141 $ |
+| injected | 1.4205 $ | 291 | 0.0049 $ |
+
+"Detected" counts the LLM judge's `discrepant` verdicts on gold-`discrepant` pairs of that source;
+the two sources are never mixed.
+
+## What the judge says (qualitative, not scored)
+
+Rationales from `eval/phase10/predictions.jsonl`, on real cases:
+
+- Restatement (DHR, Envista split-off): "Same metric, subject, and period but values differ by about
+  $660M (over 15%), far beyond rounding tolerance, indicating a genuine conflict in reported
+  revenue." The verdict is right, but nothing in the reasoning says the figure was recast.
+- Presentation rounding (DHR): "The values ($9,640.5M vs $9,640.0M) differ by less than 0.01%, well
+  within rounding tolerance for the same metric and period."
+- Reverse split (GE): "Both claims report GAAP diluted EPS for GE FY2019 with no qualifier
+  differences, yet the values (-0.62 vs -4.99) differ far beyond rounding tolerance, indicating a
+  genuine conflict." A false alarm: the judge does not know about the 1-for-8 split.
+- The false alarm on a control: "Wait, both values are identical (0.72) and same metric key, so they
+  are actually consistent." The reasoning reaches the right conclusion and the verdict still says
+  `discrepant`.
+
+## Limitations
+
+- **Small n, wide intervals.** 16 root causes, 63 restatement pairs (pairs that share a cause are not
+  independent), 42 blind pairs, 41 base pairs for injected errors. Most intervals span tens of points.
+- **Causes reviewed by one person.** The 16 causes and the 42 blind labels come from a single
+  reviewer (the project author); there is no second opinion.
+- **SDK retries are not counted.** The Anthropic SDK retries internally and the budget guard does not
+  see those retries, so spend may be slightly understated if any was billed.
+- **Candidates frozen on one date** (2026-10-30). EDGAR companyfacts keeps growing, so re-running the
+  detector later can find more.
+- **Fiscal period = calendar period for DHR and GE.** The period labels (FY2019-Q2 and so on) assume
+  it, so the detector is not valid for companies with other fiscal calendars.
+- **Narrow source A.** DHR gives 28 candidates against 39 in the spec's exploratory count
+  (unexplained, filters not tuned), and PPC, TRV and ADTN give none: real hard cases cover only DHR
+  and GE.
+- **Stock splits are an open gap.** Neither checker handles them (18 of 18 false alarms).
+- **Out of scope, not done:** changes to the checkers, the prompt or the model; split-adjusted
+  comparison; a second reviewer for causes and blind labels.
+
+## Reproduce
+
+Run from the repo root. Only `eval_phase10_run.py` can spend money.
+
+```bash
+python scripts/eval_phase10_detect_restatements.py       # EDGAR companyfacts cache -> restatement_candidates.json
+python scripts/eval_phase10_fetch_restating_filings.py [TICKER]   # prints filing passages used to write restatement_causes.json; writes nothing
+python scripts/eval_phase10_export_blind.py              # DB claims + gold_labels -> blind_pairs.csv (to label by hand)
+python scripts/eval_phase10_run.py --count               # planned calls and cost, no API calls
+python scripts/eval_phase10_run.py --pilot 10            # at most 10 live calls, prints the cost per call
+python scripts/eval_phase10_run.py --full --cap-usd 5    # whole plan; also --skip-stability, --seed N
+```
+
+`eval_phase10_run.py` reads `restatement_candidates.json`, `restatement_causes.json`,
+`blind_pairs.csv` (with your labels) and the claims in Postgres (`make seed` first), and writes
+`mutations.json`, `predictions.jsonl`, `results.json` and `report.md` in `eval/phase10/`. The judge
+cache `data/raw/llm_cache/` is gitignored: a fresh clone makes live calls (needs `ANTHROPIC_API_KEY`),
+while with the cache present the report and its costs regenerate at no cost. The committed artifacts
+are the results of the runs described above.
 
 ## Automated audio claim extraction (Phase 7)
 

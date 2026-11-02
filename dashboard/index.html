@@ -1,4 +1,6 @@
+<!doctype html>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CrossCheck</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=Public+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
 <style>
@@ -381,6 +383,38 @@
   .method-manual{ background:#eef1f2; color:var(--neutral-verdict); }
   .method-automated{ background:var(--accent-soft); color:var(--ok); }
 
+  /* ---------- Phase 10 evaluation ---------- */
+  :root{ --series-rules:#0a7859; --series-llm:#b4571a; }
+  #evaluation .block{ margin-top:40px; padding:24px; border:1px solid var(--border); border-radius:16px; background:var(--card); }
+  #evaluation .block-real{ border-left:4px solid var(--ink); }
+  #evaluation .block-injected{ border-left:4px solid var(--ink-muted); }
+  #evaluation h3{ font-size:22px; }
+  #evaluation .block-note{ margin-top:6px; font-size:14px; color:var(--ink-muted); max-width:72ch; }
+  #evaluation .partial-note{ margin-top:20px; padding:12px 16px; border-radius:10px; background:#fbf1de; color:var(--warn); font-size:14px; }
+  #evaluation .finding-callout{ margin-top:16px; padding:12px 16px; border-radius:10px; background:#fbe9eb; color:var(--bad); font-size:14px; max-width:72ch; }
+  .legend{ display:flex; gap:18px; flex-wrap:wrap; margin-top:18px; font-size:13px; }
+  .legend span{ display:inline-flex; align-items:center; gap:7px; }
+  .legend svg{ width:16px; height:16px; }
+  #sens-chart svg{ display:block; width:100%; overflow:visible; }
+  #sens-chart text{ font-family:var(--font-mono); font-size:11.5px; fill:var(--ink-muted); }
+  #sens-chart text.lbl{ font-weight:600; font-size:12px; }
+  #sens-chart .grid{ stroke:var(--border); stroke-width:1; }
+  #sens-chart .mark{ cursor:default; }
+  #sens-chart .mark:focus{ outline:2px solid var(--ink); outline-offset:2px; }
+  .chart-tip{ position:absolute; pointer-events:none; background:var(--ink); color:#fff; font-size:12px; padding:6px 9px; border-radius:8px; white-space:nowrap; z-index:5; }
+  .chart-wrap{ position:relative; margin-top:12px; }
+  #evaluation .table-wrap table{ min-width:560px; }
+  #evaluation td.num{ font-family:var(--font-mono); text-align:right; white-space:nowrap; }
+  #evaluation th.num{ text-align:right; }
+  #evaluation details{ margin-top:14px; font-size:13.5px; }
+  #evaluation summary{ cursor:pointer; color:var(--ink-muted); font-family:var(--font-mono); font-size:12.5px; }
+  .tiles{ display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-top:20px; }
+  .tile{ padding:16px; border:1px solid var(--border); border-radius:12px; background:var(--bg-alt); }
+  .tile .k{ font-family:var(--font-mono); font-size:11px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-muted); }
+  .tile .v{ font-family:var(--font-display); font-size:28px; font-weight:700; margin-top:4px; }
+  .tile .s{ font-size:12.5px; color:var(--ink-muted); margin-top:2px; }
+  .na{ color:var(--ink-muted); }
+
   /* ---------- Timeline ---------- */
   .timeline{ margin-top:48px; display:flex; flex-direction:column; }
   .tl-row{
@@ -613,6 +647,14 @@
   </div>
 </section>
 
+<section id="evaluation" class="section-alt">
+  <div class="wrap">
+    <h2 class="headline">How good are the checkers?<br><span class="muted">Measured on real pairs and on injected errors, never mixed.</span></h2>
+    <p class="lede">Phase 10 grades both checkers against hand-reviewed causes (real pairs) and against errors planted on purpose (injected pairs). Intervals are 95% Wilson.</p>
+    <div id="eval-body"><p class="lede">loading…</p></div>
+  </div>
+</section>
+
 <section id="companies-explorer">
   <div class="wrap">
     <h2 class="headline">Every claim, by company.<br><span class="muted">Start where the real disagreement is.</span></h2>
@@ -752,6 +794,135 @@
     }
   }
 
+  // phase 10 evaluation
+  var PCT = function(x){ return (x * 100).toFixed(x > 0 && x < 0.1 ? 1 : 0) + '%'; };
+  var CI = function(ci){ return ' <span class="na">(' + PCT(ci[0]) + '–' + PCT(ci[1]) + ')</span>'; };
+  var NA = '<span class="na">n/a</span>';
+  function rate(r){ return r.recall === null ? NA : PCT(r.recall) + CI(r.recall_ci); }
+  function prec(r){ return r.precision === null ? NA : PCT(r.precision) + CI(r.precision_ci); }
+  var NAMES = { rules: 'Rules', llm: 'LLM judge' };
+  var SIZE_LABEL = { '0.003':'0.3%', '0.0049':'0.49%', '0.0051':'0.51%', '0.01':'1%', '0.02':'2%', '0.05':'5%', '0.10':'10%' };
+  var CAUSE_LABEL = { recast_discontinued_ops:'Recast for discontinued ops', rounding:'Presentation rounding', stock_split:'Stock split' };
+  var CAUSE_GOLD = { recast_discontinued_ops:'discrepant', rounding:'consistent', stock_split:'consistent' };
+  var OTHER_LABEL = { unit_x1000:'Unit error ×1000', period_ytd:'Period swapped for year to date', period_prev_quarter:'Period swapped for previous quarter' };
+
+  function table(head, rows){
+    return '<div class="table-wrap"><table><thead><tr>' + head.map(function(h, i){
+      return '<th' + (i > 1 ? ' class="num"' : '') + '>' + h + '</th>'; }).join('') +
+      '</tr></thead><tbody>' + rows.join('') + '</tbody></table></div>';
+  }
+  function tile(k, v, s){ return '<div class="tile"><div class="k">' + k + '</div><div class="v nums">' + v + '</div><div class="s">' + s + '</div></div>'; }
+  function row(a, ck, n, det, rest){
+    return '<tr><td>' + a + '</td><td>' + NAMES[ck] + '</td><td class="num">' + n + '</td><td class="num">' + det + '</td>' + rest + '</tr>';
+  }
+
+  function sensChart(host, inj){
+    var keys = Object.keys(inj.rules.value);
+    var W = host.clientWidth || 600;
+    var H = W < 480 ? 260 : 320, m = { l: 44, r: 16, t: 28, b: 40 };
+    var iw = W - m.l - m.r, ih = H - m.t - m.b;
+    var x = function(i){ return m.l + iw * i / (keys.length - 1); };
+    var y = function(v){ return m.t + ih * (1 - v); };
+    var out = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Recall by injected error size for each checker">';
+    [0, 0.25, 0.5, 0.75, 1].forEach(function(g){
+      out += '<line class="grid" x1="' + m.l + '" x2="' + (W - m.r) + '" y1="' + y(g) + '" y2="' + y(g) + '"/><text x="' + (m.l - 8) + '" y="' + (y(g) + 4) + '" text-anchor="end">' + (g * 100) + '%</text>';
+    });
+    keys.forEach(function(k, i){
+      out += '<text x="' + x(i) + '" y="' + (H - 14) + '" text-anchor="middle">' + (W < 480 ? SIZE_LABEL[k].replace('%', '') : SIZE_LABEL[k]) + '</text>';
+    });
+    out += '<line x1="' + x(2) + '" x2="' + x(2) + '" y1="' + m.t + '" y2="' + (m.t + ih) + '" stroke="#5c6b66" stroke-dasharray="3 4"/>';
+    out += '<text x="' + (x(2) + 6) + '" y="' + (y(0.12)) + '">0.5% tolerance</text>';
+    [['rules', 'var(--series-rules)', 'c'], ['llm', 'var(--series-llm)', 's']].forEach(function(s){
+      var pts = keys.map(function(k, i){ return [x(i), y(inj[s[0]].value[k].recall), inj[s[0]].value[k], k]; });
+      out += '<polyline fill="none" stroke="' + s[1] + '" stroke-width="2" stroke-linejoin="round" points="' + pts.map(function(p){ return p[0] + ',' + p[1]; }).join(' ') + '"/>';
+      pts.forEach(function(p){
+        var tip = NAMES[s[0]] + ' · ' + SIZE_LABEL[p[3]] + ': ' + PCT(p[2].recall) + ' (' + p[2].detected + '/' + p[2].n + '), CI ' + PCT(p[2].recall_ci[0]) + '–' + PCT(p[2].recall_ci[1]);
+        var shape = s[2] === 'c'
+          ? '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="5" fill="' + s[1] + '" stroke="#f6f9f8" stroke-width="2"/>'
+          : '<rect x="' + (p[0] - 5) + '" y="' + (p[1] - 5) + '" width="10" height="10" fill="' + s[1] + '" stroke="#f6f9f8" stroke-width="2"/>';
+        out += '<g class="mark" tabindex="0" data-tip="' + tip + '"><title>' + tip + '</title><circle cx="' + p[0] + '" cy="' + p[1] + '" r="14" fill="transparent"/>' + shape + '</g>';
+      });
+    });
+    // direct labels at the first point: the series are apart there, they overlap at 100%
+    out += '<text class="lbl" x="' + (x(3) - 20) + '" y="' + (y(inj.llm.value[keys[3]].recall) + 34) + '" style="fill:var(--ink)">LLM judge</text>';
+    out += '<text class="lbl" x="' + (x(4) - 20) + '" y="' + (y(1) - 10) + '" style="fill:var(--ink)">Rules</text>';
+    host.querySelector('.svg-host').innerHTML = out + '</svg>';
+    var tipEl = host.querySelector('.chart-tip');
+    host.querySelectorAll('.mark').forEach(function(g){
+      var show = function(){
+        tipEl.textContent = g.getAttribute('data-tip'); tipEl.hidden = false;
+        var b = g.getBoundingClientRect(), h = host.getBoundingClientRect();
+        tipEl.style.left = Math.max(0, Math.min(b.left - h.left, h.width - tipEl.offsetWidth)) + 'px';
+        tipEl.style.top = (b.top - h.top - 36) + 'px';
+      };
+      g.addEventListener('mouseenter', show); g.addEventListener('focus', show);
+      g.addEventListener('mouseleave', function(){ tipEl.hidden = true; }); g.addEventListener('blur', function(){ tipEl.hidden = true; });
+    });
+  }
+
+  function renderEval(ev){
+    var el = document.getElementById('eval-body');
+    if (!ev){ el.innerHTML = '<p class="lede">The phase 10 evaluation has not been run yet.</p>'; return; }
+    var r = ev.real, inj = ev.injected, st = ev.stability.by_origin, cost = ev.cost, fa = ev.false_alarms;
+    var partial = ev.partial ? '<p class="partial-note"><b>Partial run.</b> The evaluation stopped before finishing, so some figures below cover fewer pairs than planned.</p>' : '';
+
+    var rows = [];
+    ['recast_discontinued_ops', 'rounding', 'stock_split'].forEach(function(c){
+      ['rules', 'llm'].forEach(function(ck){
+        var b = r[ck].by_cause[c];
+        rows.push(row(CAUSE_LABEL[c] + '<br><span class="mono na">gold: ' + CAUSE_GOLD[c] + '</span>', ck, b.n, (b.tp + b.fp) + ' / ' + b.n,
+          '<td class="num">' + prec(b) + '</td><td class="num">' + rate(b) + '</td>'));
+      });
+    });
+    ['rules', 'llm'].forEach(function(ck){
+      var b = r[ck].blind;
+      rows.push(row('Blind subset<br><span class="mono na">gold: consistent (hand-labelled)</span>', ck, b.n, (b.tp + b.fp) + ' / ' + b.n,
+        '<td class="num">' + NA + '</td><td class="num">' + NA + '</td>'));
+    });
+    var realHtml = '<div class="block block-real"><h3>Real disagreements</h3>' +
+      '<p class="block-note">Pairs from the filings themselves, with the cause of each difference reviewed by hand. “Flagged” counts pairs the checker called discrepant. Recall is n/a wherever the gold label has no discrepancy, as in the whole blind subset.</p>' +
+      table(['Cause', 'Checker', 'n', 'Flagged', 'Precision (95% CI)', 'Recall (95% CI)'], rows) +
+      '<p class="finding-callout"><b>Finding:</b> both checkers flag all ' + r.rules.by_cause.stock_split.n + ' stock-split pairs as discrepant, yet the gold label is consistent. A split changes the per-share figure without changing the facts, and neither checker knows that.</p>' +
+      '<div class="tiles">' + tile('Verdict flips on repeat', PCT(st.real.flip_rate), st.real.pairs + ' real pairs, ' + ev.stability.repeats + ' repeats, modal agreement ' + PCT(st.real.modal_agreement)) +
+      tile('LLM cost, real pairs', '$' + cost.by_source.real.cost_usd.toFixed(2), '$' + cost.by_source.real.cost_per_detected_inconsistency.toFixed(3) + ' per detected inconsistency (' + cost.by_source.real.detected + ')') + '</div></div>';
+
+    var others = [];
+    Object.keys(OTHER_LABEL).forEach(function(t){
+      ['rules', 'llm'].forEach(function(ck){
+        var b = inj[ck][t]['n/a'];
+        others.push(row(OTHER_LABEL[t], ck, b.n, b.detected + ' / ' + b.n, '<td class="num">' + rate(b) + '</td>'));
+      });
+    });
+    var sizeRows = [];
+    Object.keys(inj.rules.value).forEach(function(k){
+      ['rules', 'llm'].forEach(function(ck){
+        var b = inj[ck].value[k];
+        sizeRows.push(row(SIZE_LABEL[k], ck, b.n, b.detected + ' / ' + b.n, '<td class="num">' + rate(b) + '</td>'));
+      });
+    });
+    var injHtml = '<div class="block block-injected"><h3>Injected errors</h3>' +
+      '<p class="block-note">Errors planted on pairs known to be consistent, so every one should be caught. The curve shows how small a value difference each checker still notices.</p>' +
+      '<div class="legend"><span><svg viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="5" fill="var(--series-rules)"/></svg>Rules</span><span><svg viewBox="0 0 16 16" aria-hidden="true"><rect x="3" y="3" width="10" height="10" fill="var(--series-llm)"/></svg>LLM judge</span><span class="na">Recall by size of the injected difference (%)</span></div>' +
+      '<div class="chart-wrap" id="sens-chart"><div class="svg-host"></div><div class="chart-tip" hidden></div></div>' +
+      '<details><summary>Table view of the curve</summary>' + table(['Size', 'Checker', 'n', 'Detected', 'Recall (95% CI)'], sizeRows) + '</details>' +
+      '<h3 style="margin-top:28px;font-size:17px;">Other kinds of injected error</h3>' + table(['Error', 'Checker', 'n', 'Detected', 'Recall (95% CI)'], others) +
+      '<div class="tiles">' + tile('Verdict flips on repeat', PCT(st.injected.flip_rate), st.injected.pairs + ' injected pairs, ' + ev.stability.repeats + ' repeats, modal agreement ' + PCT(st.injected.modal_agreement)) +
+      tile('LLM cost, injected pairs', '$' + cost.by_source.injected.cost_usd.toFixed(2), '$' + cost.by_source.injected.cost_per_detected_inconsistency.toFixed(3) + ' per detected inconsistency (' + cost.by_source.injected.detected + ')') + '</div></div>';
+
+    var faHtml = '<div class="block"><h3>False alarms and total cost</h3>' +
+      '<p class="block-note">False alarms are measured on the unmutated consistent pairs. Total cost counts every judge call, including those served from cache.</p>' +
+      '<div class="tiles">' +
+      ['rules', 'llm'].map(function(ck){ return tile('False alarms · ' + NAMES[ck], fa[ck].hits + ' / ' + fa[ck].n, PCT(fa[ck].rate) + CI(fa[ck].ci)); }).join('') +
+      tile('Cost of the whole evaluation', '$' + cost.evaluation_cost_usd.toFixed(2), 'all calls, cached ones included') +
+      tile('Paid in the last run', '$' + cost.spent_usd.toFixed(2), cost.live_calls + ' live calls') + '</div></div>';
+
+    el.innerHTML = partial + realHtml + injHtml + faHtml;
+    var host = document.getElementById('sens-chart');
+    var lastW = host.clientWidth;
+    sensChart(host, inj);
+    window.addEventListener('resize', function(){ if (host.clientWidth !== lastW){ lastW = host.clientWidth; sensChart(host, inj); } });
+  }
+
   fetch('data.json').then(function(r){ return r.json(); }).then(function(data){
     var tickers = data.companies.map(function(c){ return c.ticker; });
     var startTicker = tickers.indexOf('DHR') !== -1 ? 'DHR' : tickers[0];
@@ -769,6 +940,7 @@
     });
 
     renderCompany(data, startTicker);
+    renderEval(data.phase10_eval);
   }).catch(function(){
     countEl.textContent = 'Could not load data.json';
   });

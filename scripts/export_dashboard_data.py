@@ -12,6 +12,7 @@ from pathlib import Path
 from crosscheck.db import get_connection
 
 OUT_PATH = Path(__file__).resolve().parent.parent / "dashboard" / "data.json"
+PHASE10_RESULTS = Path(__file__).resolve().parent.parent / "eval" / "phase10" / "results.json"
 
 
 def main() -> None:
@@ -82,12 +83,20 @@ def main() -> None:
         cur.execute("SELECT extraction_method, count(*) FROM claims GROUP BY extraction_method")
         claims_by_method = {method: count for method, count in cur.fetchall()}
 
+    # Phase 10 evaluation: copied as-is (the harness already computed every figure); None if not run yet.
+    phase10_eval = (
+        json.loads(PHASE10_RESULTS.read_text(encoding="utf-8"))
+        if PHASE10_RESULTS.exists()
+        else None
+    )
+
     snapshot = {
         "companies": companies,
         "claims": claims,
         "gold_label_counts": gold_label_counts,
         "evidence_span_counts": evidence_span_counts,
         "claims_by_extraction_method": claims_by_method,
+        "phase10_eval": phase10_eval,
         "totals": {
             "companies": len(companies),
             "claims": len(claims),

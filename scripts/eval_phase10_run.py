@@ -31,6 +31,7 @@ from extract_xbrl_claims import COMPANIES
 from crosscheck.consistency.checker import check_pair
 from crosscheck.consistency.llm_judge import (
     LLMJudgeNotConfiguredError,
+    cache_key,
     cached_usage,
     is_cached,
     judge_pair_with_usage,
@@ -132,6 +133,20 @@ def _neighbors(pairs: list[tuple[Claim, Claim]]) -> dict[str, NeighborValues]:
     return out
 
 
+def dedup_by_prompt(items: list[Item]) -> list[Item]:
+    """Drop items whose judge prompt (cache key) already appeared in the same source: they would
+    be one paid call counted twice. First one wins, so the order is deterministic. The overlap
+    BETWEEN sources is kept: each source answers a different question (Ruling 15)."""
+    seen: set[tuple[str, str]] = set()
+    out = []
+    for i in items:
+        k = (i.source, cache_key(i.claim_a, i.claim_b))
+        if k not in seen:
+            seen.add(k)
+            out.append(i)
+    return out
+
+
 @dataclass
 class Plan:
     real: list[Item]
@@ -211,7 +226,12 @@ def build_plan(seed: int, skip_stability: bool = False) -> Plan:
         random.Random(seed).shuffle(ctrl)
         stab += (real_pool + ctrl)[:STABILITY_REAL]
 
+    # After the stability pick above, so the repeats (a different cache key each) stay the same.
+    planned = len(real) + len(controls) + len(mut_items)
+    real, controls, mut_items = (dedup_by_prompt(x) for x in (real, controls, mut_items))
+
     info = {
+        "duplicates_dropped": planned - len(real) - len(controls) - len(mut_items),
         "eligible_base_pairs": len(all_base),
         "base_pairs_used": len(base),
         "base_reduced": reduced,
@@ -261,6 +281,7 @@ def judge_row(
     """One judge call. The guard is checked before EVERY call: is_cached only checks that a file
     exists, and a corrupt entry is silently re-fetched live (Ruling 6)."""
     row = _row(item, "llm", repeat, source)
+    row["cache_key"] = cache_key(item.claim_a, item.claim_b, repeat)
     guard.check_can_call()
     try:
         pred, usage = judge(item.claim_a, item.claim_b, repeat)
@@ -320,6 +341,7 @@ def cmd_count(plan: Plan, seed: int, skip_stability: bool = False) -> None:
         f"base pairs used: {info['base_pairs_used']}"
         + (" (REDUCED with the seed to fit under ~3.5 USD)" if info["base_reduced"] else "")
     )
+    print(f"duplicate prompts dropped within a source: {info['duplicates_dropped']}")
     print(f"mutations: {len(plan.mutations)}")
     for t, n in sorted(by_type.items()):
         print(f"  {t}: {n}")
@@ -354,7 +376,8 @@ def cmd_pilot(plan: Plan, seed: int, n: int, cap: float) -> None:
     for m in stratified(plan.info["mutations"], len(plan.mutations), seed):
         if guard.live_calls + guard.failed_calls >= n:
             break
-        judge_row(items[m.mutation_id], 0, guard)
+        if m.mutation_id in items:  # not a duplicate dropped from the plan
+            judge_row(items[m.mutation_id], 0, guard)
     total, uncached = _llm_calls(plan)
     mean = guard.spent_usd / guard.live_calls if guard.live_calls else 0.0
     print(

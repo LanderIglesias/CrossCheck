@@ -141,6 +141,34 @@ def test_evaluation_cost_counts_cached_rows_apart_from_spent():
     assert "Coste de la evaluación" in report and "Pagado en esta ejecución: 0.5000 $" in report
 
 
+def test_cost_counts_each_cache_key_once_first_row_in_plan_order_pays():
+    rows = [
+        _row(
+            "b", "real_blind", "llm", "consistent", gold="consistent", cost_usd=0.1, cache_key="k"
+        ),
+        _row(
+            "c",
+            "real_consistent_control",
+            "llm",
+            "consistent",
+            gold="consistent",
+            cost_usd=0.1,
+            cache_key="k",
+        ),
+        _row(
+            "i", "injected", "llm", "discrepant", mutation_type="value", cost_usd=0.2, cache_key="m"
+        ),
+        _row("s", "stability", "llm", "discrepant", repeat=1, cost_usd=0.4, cache_key="m#1"),
+        _row("s", "stability", "llm", "discrepant", repeat=2, cost_usd=0.4, cache_key="m#1"),
+    ]
+    co = summarize(rows, BUDGET, False)["cost"]
+    assert co["evaluation_cost_usd"] == pytest.approx(0.7)
+    assert co["by_source"]["real"]["cost_usd"] == pytest.approx(0.1)
+    assert co["controls_spent_usd"] == 0.0
+    assert co["by_source"]["injected"]["cost_usd"] == pytest.approx(0.2)
+    assert co["stability_spent_usd"] == pytest.approx(0.4)
+
+
 def test_partial_flag_propagates_to_report():
     s = summarize([], BUDGET, partial=True)
     assert s["partial"] is True

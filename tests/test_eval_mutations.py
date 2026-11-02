@@ -67,6 +67,15 @@ def test_zero_base_is_skipped_and_counted():
     assert skips["zero_base"] == 1
 
 
+def test_zero_anchor_with_zero_neighbor_is_skipped_not_divided():
+    a, b = _pair("0")
+    nb = {pair_key(a, b): NeighborValues(prev_quarter=Decimal("0"), ytd=Decimal("5"))}
+    muts, skips = generate_mutations([(a, b)], nb, seed=1)
+    assert not [m for m in muts if m.type == MutationType.PERIOD_PREV]
+    assert [m.claim_b.value for m in muts if m.type == MutationType.PERIOD_YTD] == [Decimal("5")]
+    assert skips["zero_base"] == 2  # the anchor itself and the 0/0 neighbour
+
+
 def test_unit_mutation_multiplies_by_1000_keeps_unit_label():
     a, b = _pair("2500")
     muts, _ = generate_mutations([(a, b)], {}, seed=1)

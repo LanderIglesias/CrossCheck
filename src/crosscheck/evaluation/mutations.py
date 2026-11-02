@@ -163,6 +163,8 @@ def generate_mutations(
         ):
             if value is None or anchor is None:
                 skips["no_neighbor"] += 1
+            elif anchor == 0 and value == 0:
+                skips["zero_base"] += 1  # 0/0 in the relative difference below
             elif abs(anchor - value) / max(abs(anchor), abs(value)) <= TOLERANCE_PCT:
                 # Undetectable by definition: the checker would call it consistent.
                 skips["neighbor_within_tolerance"] += 1

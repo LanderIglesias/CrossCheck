@@ -117,10 +117,20 @@ def summarize(
         return [r for r in main if r["checker"] == checker and r["source"] in sources]
 
     llm_all = [r for r in rows if r["checker"] == "llm"]
+    # One cache key is one paid call: a later row with a key already seen costs 0, so the first
+    # row in plan order (real, controls, injected, stability) carries the cost. Rows without a
+    # key (older artifacts) are summed as they are.
+    seen: set[str] = set()
+    charged: dict[int, float] = {}
+    for r in llm_all:
+        k = r.get("cache_key")
+        charged[id(r)] = 0.0 if k in seen else r["cost_usd"]
+        if k is not None:
+            seen.add(k)
 
     def cost_of(sources: tuple[str, ...]) -> dict:
         rs = [r for r in llm_all if r["source"] in sources]
-        cost_src = sum(r["cost_usd"] for r in rs)
+        cost_src = sum(charged[id(r)] for r in rs)
         det = sum(1 for r in rs if r["predicted"] == "discrepant" and r["gold"] == "discrepant")
         return {
             "cost_usd": cost_src,
@@ -142,8 +152,8 @@ def summarize(
             "output_tokens": budget["output_tokens"],
             "spent_usd": spent,
             # Every llm row, cache hits included, so the figure does not depend on what was
-            # already cached when this run started.
-            "evaluation_cost_usd": sum(r["cost_usd"] for r in llm_all),
+            # already cached when this run started; each cache key counted once.
+            "evaluation_cost_usd": sum(charged.values()),
             "by_source": {"real": cost_of(_REAL_SOURCES), "injected": cost_of(("injected",))},
             "controls_spent_usd": cost_of(("real_consistent_control",))["cost_usd"],
             "stability_spent_usd": cost_of(("stability",))["cost_usd"],

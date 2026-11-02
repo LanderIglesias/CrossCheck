@@ -154,3 +154,20 @@ def test_rounding_gold_is_consistent(tmp_path):
     path = _causes(tmp_path, cause="rounding")
     cases, _ = load_confirmed_cases(_candidates(), path)
     assert [(c.gold, c.cause) for c in cases] == [(Verdict.CONSISTENT, "rounding")]
+
+
+def test_committed_artifacts_give_63_cases_16_causes_and_small_rounding_gaps():
+    out = Path(__file__).parent.parent / "eval" / "phase10"
+    cases, stats = load_confirmed_cases(
+        load_candidates(out / "restatement_candidates.json"), out / "restatement_causes.json"
+    )
+    assert len(cases) == 63 and stats == {
+        "excluded_no_cause": 0,
+        "excluded_unreviewed": 0,
+        "root_causes": 16,
+    }
+    rounding = [c for c in cases if c.cause == "rounding"]
+    assert rounding
+    for c in rounding:
+        a, b = c.claim_a.value, c.claim_b.value
+        assert abs(a - b) / max(abs(a), abs(b)) <= Decimal("0.005")

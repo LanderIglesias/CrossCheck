@@ -10,7 +10,14 @@ import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent / "scripts"))
 
-from eval_phase10_run import Item, Plan, _llm_calls, execute, judge_row  # noqa: E402
+from eval_phase10_run import (
+    Item,
+    Plan,
+    _llm_calls,
+    dedup_by_prompt,
+    execute,
+    judge_row,
+)  # noqa: E402
 
 from crosscheck.consistency.checker import Prediction  # noqa: E402
 from crosscheck.evaluation.budget import BudgetExceededError, BudgetGuard  # noqa: E402
@@ -84,3 +91,21 @@ def test_skip_stability_is_recorded_as_skipped_not_zero():
     assert summary["stability"] == {"skipped": True}
     report = render_report(summary)
     assert "omitida" in report and "Tasa de cambio" not in report
+
+
+def test_dedup_by_prompt_keeps_first_within_a_source_and_overlap_between_sources():
+    a = _item()
+    twin = Item("twin", "injected", a.claim_a, a.claim_b, "discrepant")
+    other_source = Item("ctrl", "real_consistent_control", a.claim_a, a.claim_b, "consistent")
+    other = a.claim_a.model_copy(update={"value": Decimal(2)})
+    distinct = Item("d", "injected", other, a.claim_b, "discrepant")
+    out = dedup_by_prompt([a, twin, other_source, distinct])
+    assert [i.item_id for i in out] == ["i", "ctrl", "d"]
+
+
+def test_judge_row_records_cache_key():
+    row = judge_row(_item(), 3, BudgetGuard(), _fake(None))
+    assert (
+        row["cache_key"]
+        and row["cache_key"] != judge_row(_item(), 0, BudgetGuard(), _fake(None))["cache_key"]
+    )

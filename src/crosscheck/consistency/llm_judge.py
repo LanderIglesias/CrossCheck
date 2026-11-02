@@ -181,6 +181,12 @@ def is_cached(claim_a: Claim, claim_b: Claim | None, repeat: int = 0) -> bool:
     return _cache_path(_build_prompt(claim_a, claim_b), repeat).exists()
 
 
+def cache_key(claim_a: Claim, claim_b: Claim | None, repeat: int = 0) -> str:
+    """Identifier of the cached judgment for a pair: two pairs with the same key share one paid
+    call, whatever claims they come from."""
+    return _cache_path(_build_prompt(claim_a, claim_b), repeat).stem
+
+
 def cached_usage(claim_a: Claim, claim_b: Claim | None, repeat: int = 0) -> dict[str, int] | None:
     """The {"input_tokens","output_tokens"} stored with the cached judgment, or None if there is no
     readable entry. Lets callers price a cache hit at what it cost when it was paid for."""

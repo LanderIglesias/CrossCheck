@@ -484,7 +484,8 @@ Phases 4 and 5 scored both checkers on the 49 hand-labeled pairs. Phase 10 asks 
 what do the **rule-based checker** (`consistency/checker.py`, deterministic, `TOLERANCE_PCT = 0.5%`)
 and the **LLM judge** (`consistency/llm_judge.py`, Claude Sonnet 5) do on real hard cases and on
 errors of a known size? Every number below comes from the artifacts in `eval/phase10/` (report,
-results, predictions, candidates and causes), the design spec or the project ledger (seed 20261030, `partial: false`, 0 errors in every cell). Source A
+results, predictions, candidates and causes), the design spec or the project ledger (seed 20261030, `partial: false`, 0 errors in every cell). Identical judge prompts are
+deduplicated within each source (same cache key counts once), so the n below are distinct prompts. Source A
 (real) and source B (injected) are never combined in one table or one figure. Intervals are 95%
 Wilson intervals. The dashboard shows the same results.
 
@@ -504,7 +505,7 @@ of them extraction errors.
   `eval/phase10/restatement_candidates.json` because `data/raw/` is gitignored and companyfacts keeps
   growing (frozen 2026-10-30).
 - *Cause verified by quote.* A candidate only enters if the later filing states why the value
-  changed. `eval/phase10/restatement_causes.json` holds 16 root causes (10
+  changed (exception: `rounding`, whose quote only fixes the unit, not a reason for the change). `eval/phase10/restatement_causes.json` holds 16 root causes (10
   `recast_discontinued_ops`, 2 `stock_split`, 4 `rounding`), each with a literal quote from the filing
   text and the (tag, period, accession) pairs it covers: 63 pairs in total. Quotes were checked as
   substrings of the extracted filing text, and the user reviewed all 16 causes (`user_reviewed:
@@ -517,43 +518,45 @@ of them extraction errors.
   as `ambiguous`), so a `discrepant` verdict counts as a false alarm.
 - *Blind labeling.* `scripts/eval_phase10_export_blind.py` exports the candidate pairs nobody had
   labeled, without the checkers' predictions, to `eval/phase10/blind_pairs.csv`. The user (Lander)
-  labeled 42 pairs following `src/crosscheck/labeling/protocol.md`: all 42 are `consistent`.
-- *Controls.* 41 real `consistent` pairs from the gold set, unmutated, measure false alarms.
+  labeled 42 pairs following `src/crosscheck/labeling/protocol.md`: all 42 are `consistent` (38
+  distinct judge prompts, 4 duplicates dropped).
+- *Controls.* 41 real `consistent` pairs from the gold set, unmutated, measure false alarms (39
+  distinct judge prompts).
 
 **B. Injected errors.** In-memory copies of the 41 controls with a known error (`Claim` objects;
 nothing is written to `claims` or `gold_labels`). Gold is always `discrepant`. Types: value changes
 of 0.3%, 0.49%, 0.51%, 1%, 2%, 5% and 10% (0.49% and 0.51% sit either side of the rules' 0.5%
 tolerance), a unit change by x1000, and a period shift (previous quarter, or year-to-date). 377
-mutations, seeded.
+mutations generated, seeded; 351 distinct judge prompts after deduplication.
 
 **Stability.** 30 real and 30 injected pairs judged 5 times each (the cache key includes the
 repetition index, so repeats are real calls and the existing cache is untouched).
 
 ### Results A: real hard cases
 
-Precision and recall of `discrepant`. 63 restatement pairs plus 42 blind pairs make 105 real pairs.
+Precision and recall of `discrepant`. 63 restatement pairs plus 38 blind pairs make 101 real pairs.
 
 #### rules (16 root causes)
 
 | Subset | n | Precision | Recall |
 |---|---|---|---|
 | restatements | 63 | 60.0% [45.5%, 73.0%] | 100.0% [87.5%, 100.0%] |
-| blind | 42 | 0.0% [0.0%, 56.2%] | n/a |
-| together (real only) | 105 | 56.2% [42.3%, 69.3%] | 100.0% [87.5%, 100.0%] |
+| blind | 38 | 0.0% [0.0%, 56.2%] | n/a n/a |
+| together (real only) | 101 | 56.2% [42.3%, 69.3%] | 100.0% [87.5%, 100.0%] |
 | cause: recast_discontinued_ops | 27 | 100.0% [87.5%, 100.0%] | 100.0% [87.5%, 100.0%] |
-| cause: rounding | 18 | n/a | n/a |
-| cause: stock_split | 18 | 0.0% [0.0%, 17.6%] | n/a |
+| cause: rounding | 18 | n/a n/a | n/a n/a |
+| cause: stock_split | 18 | 0.0% [0.0%, 17.6%] | n/a n/a |
 
 #### llm (16 root causes)
 
 | Subset | n | Precision | Recall |
 |---|---|---|---|
 | restatements | 63 | 60.0% [45.5%, 73.0%] | 100.0% [87.5%, 100.0%] |
-| blind | 42 | 0.0% [0.0%, 79.3%] | n/a |
-| together (real only) | 105 | 58.7% [44.3%, 71.7%] | 100.0% [87.5%, 100.0%] |
+| blind | 38 | 0.0% [0.0%, 79.3%] | n/a n/a |
+| together (real only) | 101 | 58.7% [44.3%, 71.7%] | 100.0% [87.5%, 100.0%] |
 | cause: recast_discontinued_ops | 27 | 100.0% [87.5%, 100.0%] | 100.0% [87.5%, 100.0%] |
-| cause: rounding | 18 | n/a | n/a |
-| cause: stock_split | 18 | 0.0% [0.0%, 17.6%] | n/a |
+| cause: rounding | 18 | n/a n/a | n/a n/a |
+| cause: stock_split | 18 | 0.0% [0.0%, 17.6%] | n/a n/a |
 
 How to read it:
 
@@ -564,9 +567,9 @@ How to read it:
   checkers: a reverse split changes the per-share figure while the facts stay the same, and neither
   checker knows about splits. Recall is n/a (the subset has no positives), not 100%. The
   human-verified cause is what shows these pairs are not errors.
-- **The blind subset only measures false alarms.** It has 42 pairs, all `consistent`, so there are no
+- **The blind subset only measures false alarms.** It has 38 pairs, all `consistent`, so there are no
   positives and recall is n/a. Precision 0.0% means everything a checker flagged was a false alarm:
-  3 of 42 pairs for rules, 1 of 42 for the LLM. It is not "0 of (0+1)" and not a meaningless
+  3 of 38 pairs for rules, 1 of 38 for the LLM. It is not "0 of (0+1)" and not a meaningless
   artifact; the wide intervals ([0.0%, 56.2%] and [0.0%, 79.3%]) reflect how few pairs were flagged.
 
 ### Results B: injected errors
@@ -581,53 +584,53 @@ and 100% from 0.51%. The misses below the tolerance are expected by design, not 
 
 | Type | Size | n | Recall | 95% CI |
 |---|---|---|---|---|
-| period_prev_quarter | n/a | 29 | 100.0% | [88.3%, 100.0%] |
-| period_ytd | n/a | 20 | 100.0% | [83.9%, 100.0%] |
-| unit_x1000 | n/a | 41 | 100.0% | [91.4%, 100.0%] |
-| value | 0.003 | 41 | 0.0% | [0.0%, 8.6%] |
-| value | 0.0049 | 41 | 0.0% | [0.0%, 8.6%] |
-| value | 0.0051 | 41 | 100.0% | [91.4%, 100.0%] |
-| value | 0.01 | 41 | 100.0% | [91.4%, 100.0%] |
-| value | 0.02 | 41 | 100.0% | [91.4%, 100.0%] |
-| value | 0.05 | 41 | 100.0% | [91.4%, 100.0%] |
-| value | 0.10 | 41 | 100.0% | [91.4%, 100.0%] |
+| period_prev_quarter | n/a | 27 | 100.0% | [87.5%, 100.0%] |
+| period_ytd | n/a | 18 | 100.0% | [82.4%, 100.0%] |
+| unit_x1000 | n/a | 38 | 100.0% | [90.8%, 100.0%] |
+| value | 0.003 | 39 | 0.0% | [0.0%, 9.0%] |
+| value | 0.0049 | 38 | 0.0% | [0.0%, 9.2%] |
+| value | 0.0051 | 38 | 100.0% | [90.8%, 100.0%] |
+| value | 0.01 | 39 | 100.0% | [91.0%, 100.0%] |
+| value | 0.02 | 38 | 100.0% | [90.8%, 100.0%] |
+| value | 0.05 | 38 | 100.0% | [90.8%, 100.0%] |
+| value | 0.10 | 38 | 100.0% | [90.8%, 100.0%] |
 
 #### llm
 
 | Type | Size | n | Recall | 95% CI |
 |---|---|---|---|---|
-| period_prev_quarter | n/a | 29 | 100.0% | [88.3%, 100.0%] |
-| period_ytd | n/a | 20 | 100.0% | [83.9%, 100.0%] |
-| unit_x1000 | n/a | 41 | 51.2% | [36.5%, 65.7%] |
-| value | 0.003 | 41 | 51.2% | [36.5%, 65.7%] |
-| value | 0.0049 | 41 | 65.9% | [50.5%, 78.4%] |
-| value | 0.0051 | 41 | 65.9% | [50.5%, 78.4%] |
-| value | 0.01 | 41 | 75.6% | [60.7%, 86.2%] |
-| value | 0.02 | 41 | 82.9% | [68.7%, 91.5%] |
-| value | 0.05 | 41 | 97.6% | [87.4%, 99.6%] |
-| value | 0.10 | 41 | 100.0% | [91.4%, 100.0%] |
+| period_prev_quarter | n/a | 27 | 100.0% | [87.5%, 100.0%] |
+| period_ytd | n/a | 18 | 100.0% | [82.4%, 100.0%] |
+| unit_x1000 | n/a | 38 | 50.0% | [34.8%, 65.2%] |
+| value | 0.003 | 39 | 51.3% | [36.2%, 66.1%] |
+| value | 0.0049 | 38 | 65.8% | [49.9%, 78.8%] |
+| value | 0.0051 | 38 | 65.8% | [49.9%, 78.8%] |
+| value | 0.01 | 39 | 76.9% | [61.7%, 87.4%] |
+| value | 0.02 | 38 | 84.2% | [69.6%, 92.6%] |
+| value | 0.05 | 38 | 97.4% | [86.5%, 99.5%] |
+| value | 0.10 | 38 | 100.0% | [90.8%, 100.0%] |
 
 - **Rules:** 100% on unit x1000 and on both period shifts; the step sits exactly at 0.5%.
-- **LLM:** a smooth curve, 100% on period shifts and at 10%. It flags 51.2% of the 0.3% differences
-  and 65.9% of the 0.49% ones, stricter than the 0.5% tolerance written in its own prompt.
+- **LLM:** a smooth curve, 100% on period shifts and at 10%. It flags 51.3% of the 0.3% differences
+  and 65.8% of the 0.49% ones, stricter than the 0.5% tolerance written in its own prompt.
 
 #### What the judge gets wrong (reported, not patched)
 
-The judge detects only 51.2% of x1000 unit errors (21 of 41). Where it misses, its rationale treats
+The judge detects only 50.0% of x1000 unit errors (19 of 38). Where it misses, its rationale treats
 the slip as a typo: "after converting units they match exactly, and a unit conversion alone is not
 evidence of discrepancy". The design spec leaves improving the checkers out of scope, and changing
 the prompt would invalidate the live calls already made, so the prompt was not touched. Mitigation
-already in the product: the rule-based checker caught 41 of 41 injected unit errors (95% CI [91.4%, 100.0%]), so the two checkers
+already in the product: the rule-based checker caught 38 of 38 injected unit errors (95% CI [90.8%, 100.0%]), so the two checkers
 complement each other.
 
 ### False alarms (real `consistent` controls, unmutated)
 
 | Checker | n | `discrepant` rate | 95% CI |
 |---|---|---|---|
-| rules | 41 | 2.4% | [0.4%, 12.6%] |
-| llm | 41 | 2.4% | [0.4%, 12.6%] |
+| rules | 39 | 2.6% | [0.5%, 13.2%] |
+| llm | 39 | 2.6% | [0.5%, 13.2%] |
 
-One of 41 for each checker. With n = 41 the interval reaches 12.6%, so this is not evidence that the
+One of 39 for each checker. With n = 39 the interval reaches 13.2%, so this is not evidence that the
 false-alarm rate is acceptable for production.
 
 ### Judge stability
@@ -643,16 +646,17 @@ separately.
 
 ### Cost
 
-The evaluation cost is **3.0504 $**: every judge call the evaluation uses, including those served
-from the on-disk cache, at the price paid when they were made (controls 0.1456 $, stability
-1.1037 $). About 0.37 $ of that was paid in Phase 8 (2026-09-11) and reused from the cache; about
-2.67 $ was paid in Phase 10 (pilot 0.0371 $, first run 1.3035 $, second run 1.3338 $). The 5 $ cap
-was cumulative across runs.
+The evaluation cost is **2.8933 $**: every judge call the evaluation uses, including those served
+from the on-disk cache, at the price paid when they were made (controls 0.1001 $, stability
+1.1037 $). Each cache key is counted once. 0.2189 $ of that was paid in Phase 8 (2026-09-11) and
+reused from the cache; 2.6744 $ was paid in Phase 10 (pilot 0.0371 $, first run 1.3035 $, second run
+1.3338 $; table in `eval/phase10/runs.md`). The 5 $ cap was cumulative across runs and was enforced
+by hand: each run got `--cap-usd` = 5 minus what was already spent.
 
 | Source | Cost | Detected | Cost per detected inconsistency |
 |---|---|---|---|
-| real | 0.3806 $ | 27 | 0.0141 $ |
-| injected | 1.4205 $ | 291 | 0.0049 $ |
+| real | 0.3667 $ | 27 | 0.0136 $ |
+| injected | 1.3228 $ | 271 | 0.0049 $ |
 
 "Detected" counts the LLM judge's `discrepant` verdicts on gold-`discrepant` pairs of that source;
 the two sources are never mixed.
@@ -676,7 +680,7 @@ Rationales from `eval/phase10/predictions.jsonl`, on real cases:
 ### Limitations
 
 - **Small n, wide intervals.** 16 root causes, 63 restatement pairs (pairs that share a cause are not
-  independent), 42 blind pairs, 41 base pairs for injected errors. Most intervals span tens of points.
+  independent), 38 distinct blind pairs, 41 base pairs for injected errors. Most intervals span tens of points.
 - **Causes reviewed by one person.** The 16 causes and the 42 blind labels come from a single
   reviewer (the project author); there is no second opinion.
 - **SDK retries are not counted.** The Anthropic SDK retries internally and the budget guard does not
@@ -688,6 +692,13 @@ Rationales from `eval/phase10/predictions.jsonl`, on real cases:
 - **Narrow source A.** DHR gives 28 candidates against 39 in the spec's exploratory count
   (unexplained, filters not tuned), and PPC, TRV and ADTN give none: real hard cases cover only DHR
   and GE.
+- **Controls and blind pairs overlap.** 11 of the 39 control prompts are also blind pairs, so the
+  judge's false alarm on blind and on controls is the same entry (GE 0.72 vs 0.72); the rules' false
+  alarms follow the same pattern (DHR 4.3 B vs 4,343.1 M). The two are different metrics and are never
+  added together; the overlap between sources is kept on purpose, only duplicates inside a source were
+  removed.
+- **The 5 $ cap was controlled by hand**, not by the code: `--cap-usd` limits one run, so the
+  cumulative cap relied on passing 5 minus the amount already spent.
 - **Stock splits are an open gap.** Neither checker handles them (18 of 18 false alarms).
 - **Out of scope, not done:** changes to the checkers, the prompt or the model; split-adjusted
   comparison; a second reviewer for causes and blind labels.
@@ -697,12 +708,12 @@ Rationales from `eval/phase10/predictions.jsonl`, on real cases:
 Run from the repo root. Only `eval_phase10_run.py` can spend money.
 
 ```bash
-python scripts/eval_phase10_detect_restatements.py       # EDGAR companyfacts cache -> restatement_candidates.json
+python scripts/eval_phase10_detect_restatements.py       # EDGAR companyfacts cache -> restatement_candidates.json  (already done; overwrites frozen artifacts)
 python scripts/eval_phase10_fetch_restating_filings.py [TICKER]   # prints filing passages used to write restatement_causes.json; writes nothing
-python scripts/eval_phase10_export_blind.py              # DB claims + gold_labels -> blind_pairs.csv (to label by hand)
+python scripts/eval_phase10_export_blind.py              # DB claims + gold_labels -> blind_pairs.csv (to label by hand; already done; overwrites blind_pairs.csv, which holds the human labels)
 python scripts/eval_phase10_run.py --count               # planned calls and cost, no API calls
 python scripts/eval_phase10_run.py --pilot 10            # at most 10 live calls, prints the cost per call
-python scripts/eval_phase10_run.py --full --cap-usd 5    # whole plan; also --skip-stability, --seed N
+python scripts/eval_phase10_run.py --full --cap-usd 5    # whole plan (cap = 5 minus what was already spent); also --skip-stability, --seed N
 ```
 
 `eval_phase10_run.py` reads `restatement_candidates.json`, `restatement_causes.json`,

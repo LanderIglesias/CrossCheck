@@ -31,6 +31,25 @@ def test_download_deck_is_idempotent(monkeypatch):
     assert path1.exists()
 
 
+def test_download_deck_reuses_local_copy_without_network(monkeypatch):
+    raw = b"%PDF-1.4 already acquired"
+    decks_dir = config.settings.raw_dir / "decks"
+    decks_dir.mkdir(parents=True)
+    digest = hashlib.sha256(raw).hexdigest()
+    local = decks_dir / f"ACME_2025Q2_{digest[:12]}.pdf"
+    local.write_bytes(raw)
+
+    def _no_network(*a, **k):
+        raise AssertionError("must not hit the network when the deck is on disk")
+
+    monkeypatch.setattr(decks.requests, "get", _no_network)
+
+    assert decks.download_deck("ACME", 2025, "Q2", "https://example.com/deck.pdf") == (
+        local,
+        digest,
+    )
+
+
 def test_download_deck_rejects_non_pdf_response(monkeypatch):
     class _Resp:
         content = b"<html>404 not found</html>"

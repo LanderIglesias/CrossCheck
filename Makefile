@@ -23,6 +23,7 @@ seed:
 	python scripts/ingest_and_embed_filing.py
 	python scripts/extract_xbrl_claims.py
 	python scripts/extract_ppc_deck_claims.py
+	python scripts/extract_ppc_audio_claims.py
 
 label:
 	streamlit run src/crosscheck/labeling/app.py

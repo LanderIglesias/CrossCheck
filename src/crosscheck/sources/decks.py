@@ -54,6 +54,12 @@ def download_deck(ticker: str, fiscal_year: int, fiscal_period: str, url: str) -
     decks_dir = settings.raw_dir / "decks"
     decks_dir.mkdir(parents=True, exist_ok=True)
 
+    # Already acquired: reuse it, so a re-seed does not depend on the IR site still serving the file.
+    for local_path in sorted(decks_dir.glob(f"{ticker}_{fiscal_year}{fiscal_period}_*.pdf")):
+        digest = hashlib.sha256(local_path.read_bytes()).hexdigest()
+        if local_path.name.endswith(f"_{digest[:12]}.pdf"):
+            return local_path, digest
+
     resp = requests.get(url, timeout=60)
     resp.raise_for_status()
     raw_bytes = resp.content

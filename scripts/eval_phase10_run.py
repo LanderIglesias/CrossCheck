@@ -31,12 +31,13 @@ from extract_xbrl_claims import COMPANIES
 from crosscheck.consistency.checker import check_pair
 from crosscheck.consistency.llm_judge import (
     LLMJudgeNotConfiguredError,
+    cached_usage,
     is_cached,
     judge_pair_with_usage,
 )
 from crosscheck.db import get_connection
 from crosscheck.evaluation.blind import claim_key, load_blind_labels, pair_key
-from crosscheck.evaluation.budget import BudgetExceededError, BudgetGuard
+from crosscheck.evaluation.budget import BudgetExceededError, BudgetGuard, cost_of_usage
 from crosscheck.evaluation.mutations import (
     Mutation,
     NeighborValues,
@@ -255,6 +256,7 @@ def judge_row(
     guard: BudgetGuard,
     judge: Callable[..., Any] = judge_pair_with_usage,
     source: str | None = None,
+    cached_usage_of: Callable[..., Any] = cached_usage,
 ) -> dict:
     """One judge call. The guard is checked before EVERY call: is_cached only checks that a file
     exists, and a corrupt entry is silently re-fetched live (Ruling 6)."""
@@ -271,6 +273,11 @@ def judge_row(
     row.update(predicted=pred.verdict.value, rationale=pred.rationale)
     if usage is not None:
         row.update(live=True, cost_usd=guard.record_usage(usage))
+    else:
+        # Cache hit: the guard does not count it (Ruling 6), but the evaluation cost does, priced
+        # at what it cost when it was paid for.
+        paid = cached_usage_of(item.claim_a, item.claim_b, repeat)
+        row["cost_usd"] = cost_of_usage(paid) if paid else 0.0
     return row
 
 

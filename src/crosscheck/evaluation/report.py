@@ -120,12 +120,12 @@ def summarize(
 
     def cost_of(sources: tuple[str, ...]) -> dict:
         rs = [r for r in llm_all if r["source"] in sources]
-        spent_src = sum(r["cost_usd"] for r in rs)
+        cost_src = sum(r["cost_usd"] for r in rs)
         det = sum(1 for r in rs if r["predicted"] == "discrepant" and r["gold"] == "discrepant")
         return {
-            "spent_usd": spent_src,
+            "cost_usd": cost_src,
             "detected": det,
-            "cost_per_detected_inconsistency": spent_src / det if det else None,
+            "cost_per_detected_inconsistency": cost_src / det if det else None,
         }
 
     spent = budget["spent_usd"]
@@ -141,9 +141,12 @@ def summarize(
             "input_tokens": budget["input_tokens"],
             "output_tokens": budget["output_tokens"],
             "spent_usd": spent,
+            # Every llm row, cache hits included, so the figure does not depend on what was
+            # already cached when this run started.
+            "evaluation_cost_usd": sum(r["cost_usd"] for r in llm_all),
             "by_source": {"real": cost_of(_REAL_SOURCES), "injected": cost_of(("injected",))},
-            "controls_spent_usd": cost_of(("real_consistent_control",))["spent_usd"],
-            "stability_spent_usd": cost_of(("stability",))["spent_usd"],
+            "controls_spent_usd": cost_of(("real_consistent_control",))["cost_usd"],
+            "stability_spent_usd": cost_of(("stability",))["cost_usd"],
         },
         "partial": partial,
         "seed": seed,
@@ -248,17 +251,21 @@ def render_report(summary: dict[str, Any]) -> str:
         "",
         f"Llamadas en vivo: {co['live_calls']}, fallidas: {co['failed_calls']}, "
         f"tokens: {co['input_tokens']} entrada / {co['output_tokens']} salida, "
-        f"gastado en total: {co['spent_usd']:.4f} $ "
+        "",
+        f"Coste de la evaluación (todas las llamadas, también las servidas de caché, "
+        f"a precio de cuando se pagaron): {co['evaluation_cost_usd']:.4f} $ "
         f"(controles: {co['controls_spent_usd']:.4f} $, estabilidad: "
         f"{co['stability_spent_usd']:.4f} $)",
         "",
-        "| Fuente | Gastado | Detectadas | Coste por inconsistencia detectada |",
+        f"Pagado en esta ejecución: {co['spent_usd']:.4f} $",
+        "",
+        "| Fuente | Coste | Detectadas | Coste por inconsistencia detectada |",
         "|---|---|---|---|",
     ]
     for src, c in co["by_source"].items():
         cpd = c["cost_per_detected_inconsistency"]
         out.append(
-            f"| {src} | {c['spent_usd']:.4f} $ | {c['detected']} "
+            f"| {src} | {c['cost_usd']:.4f} $ | {c['detected']} "
             f"| {'n/a' if cpd is None else f'{cpd:.4f} $'} |"
         )
     out.append("")

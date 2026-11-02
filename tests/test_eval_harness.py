@@ -54,6 +54,16 @@ def test_cache_hit_is_free_but_still_guarded():
     assert not row["live"] and g.live_calls == 0 and row["predicted"] == "discrepant"
 
 
+def test_cached_row_is_priced_from_cached_usage_but_not_guarded():
+    g = BudgetGuard()
+    usage = {"input_tokens": 1000, "output_tokens": 100}
+    row = judge_row(_item(), 0, g, _fake(None), cached_usage_of=lambda a, b, r: usage)
+    assert row["cost_usd"] == pytest.approx(0.003) and not row["live"]
+    assert g.spent_usd == 0.0 and g.live_calls == 0
+    row = judge_row(_item(), 0, g, _fake(None), cached_usage_of=lambda a, b, r: None)
+    assert row["cost_usd"] == 0.0
+
+
 def test_runtime_error_counts_as_failure():
     def boom(a, b, repeat):
         raise RuntimeError("rate limited")

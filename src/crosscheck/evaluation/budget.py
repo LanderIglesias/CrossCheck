@@ -17,6 +17,14 @@ INPUT_PRICE_PER_TOKEN = 2.00 / 1_000_000
 OUTPUT_PRICE_PER_TOKEN = 10.00 / 1_000_000
 
 
+def cost_of_usage(usage: dict) -> float:
+    """Precio de una llamada a partir de su `usage` (vivo o guardado en caché)."""
+    return (
+        usage["input_tokens"] * INPUT_PRICE_PER_TOKEN
+        + usage["output_tokens"] * OUTPUT_PRICE_PER_TOKEN
+    )
+
+
 class BudgetExceededError(RuntimeError):
     """La siguiente llamada podría superar el tope de gasto."""
 
@@ -42,7 +50,7 @@ class BudgetGuard:
     def record_usage(self, usage: dict) -> float:
         """Suma una llamada en vivo y devuelve su coste."""
         inp, out = usage["input_tokens"], usage["output_tokens"]
-        cost = inp * INPUT_PRICE_PER_TOKEN + out * OUTPUT_PRICE_PER_TOKEN
+        cost = cost_of_usage(usage)
         self.input_tokens += inp
         self.output_tokens += out
         self.spent_usd += cost

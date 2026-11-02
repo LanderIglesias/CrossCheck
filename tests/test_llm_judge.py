@@ -163,8 +163,10 @@ def test_judge_pair_with_usage_live_then_cached(monkeypatch, tmp_path):
     b = _claim(2, "revenue.total", "1001000", "USD")
 
     assert not llm_judge.is_cached(a, b)
+    assert llm_judge.cached_usage(a, b) is None
     _, usage = llm_judge.judge_pair_with_usage(a, b)
     assert usage == {"input_tokens": 100, "output_tokens": 20}
     assert llm_judge.is_cached(a, b)
     _, usage = llm_judge.judge_pair_with_usage(a, b)
     assert usage is None
+    assert llm_judge.cached_usage(a, b) == {"input_tokens": 100, "output_tokens": 20}

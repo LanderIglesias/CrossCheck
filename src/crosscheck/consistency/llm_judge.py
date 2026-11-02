@@ -181,6 +181,15 @@ def is_cached(claim_a: Claim, claim_b: Claim | None, repeat: int = 0) -> bool:
     return _cache_path(_build_prompt(claim_a, claim_b), repeat).exists()
 
 
+def cached_usage(claim_a: Claim, claim_b: Claim | None, repeat: int = 0) -> dict[str, int] | None:
+    """The {"input_tokens","output_tokens"} stored with the cached judgment, or None if there is no
+    readable entry. Lets callers price a cache hit at what it cost when it was paid for."""
+    cache_path = _cache_path(_build_prompt(claim_a, claim_b), repeat)
+    cached = _read_cache(cache_path) if cache_path.exists() else None
+    usage = cached.get("usage") if cached else None
+    return usage if isinstance(usage, dict) else None
+
+
 def judge_pair_with_usage(
     claim_a: Claim, claim_b: Claim | None, repeat: int = 0
 ) -> tuple[Prediction, dict[str, int] | None]:

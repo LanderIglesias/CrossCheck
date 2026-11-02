@@ -118,7 +118,7 @@ def test_stability_and_cost_split_by_source():
     co = s["cost"]
     assert "cost_per_detected_inconsistency" not in co
     assert co["by_source"]["real"] == {
-        "spent_usd": 0.1,
+        "cost_usd": 0.1,
         "detected": 1,
         "cost_per_detected_inconsistency": 0.1,
     }
@@ -126,6 +126,19 @@ def test_stability_and_cost_split_by_source():
     assert co["controls_spent_usd"] == 0.3 and co["stability_spent_usd"] == pytest.approx(0.8)
     assert s["real"]["llm"]["blind"]["errors"] == 1
     assert "errores: 1" in render_report(s)
+
+
+def test_evaluation_cost_counts_cached_rows_apart_from_spent():
+    rows = [
+        _row("i1", "injected", "llm", "discrepant", mutation_type="value", cost_usd=0.2),
+        _row("i2", "injected", "llm", "discrepant", mutation_type="value", cost_usd=0.2),
+    ]
+    co = summarize(rows, BUDGET, False)["cost"]
+    assert co["evaluation_cost_usd"] == pytest.approx(0.4)
+    assert co["spent_usd"] == BUDGET["spent_usd"] == 0.5
+    assert co["by_source"]["injected"]["cost_usd"] == pytest.approx(0.4)
+    report = render_report(summarize(rows, BUDGET, False))
+    assert "Coste de la evaluación" in report and "Pagado en esta ejecución: 0.5000 $" in report
 
 
 def test_partial_flag_propagates_to_report():

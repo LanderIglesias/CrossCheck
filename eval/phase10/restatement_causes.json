@@ -7,7 +7,7 @@
       "source_accession": "0000313616-20-000041",
       "source_document": "dhr-20191231x10xk.htm",
       "quote": "The accounting requirements for reporting Envista as a discontinued operation were met when the Split-Off was completed. Accordingly, the Consolidated Financial Statements for all periods presented reflect this business as a discontinued operation.",
-      "user_reviewed": false,
+      "user_reviewed": true,
       "covers": [
         {
           "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
@@ -55,7 +55,7 @@
       "source_accession": "0000313616-20-000120",
       "source_document": "dhr-202073x10q.htm",
       "quote": "The accounting requirements for reporting the Separation of Envista as a discontinued operation were met when the Separation was completed. Accordingly, the accompanying Consolidated Condensed Financial Statements for all periods presented reflect this business as a discontinued operation.",
-      "user_reviewed": false,
+      "user_reviewed": true,
       "covers": [
         {
           "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
@@ -78,7 +78,7 @@
       "source_accession": "0000313616-20-000142",
       "source_document": "dhr-20201002.htm",
       "quote": "The accounting requirements for reporting the Separation of Envista as a discontinued operation were met when the Separation was completed. Accordingly, the accompanying Consolidated Condensed Financial Statements for all periods presented reflect this business as a discontinued operation.",
-      "user_reviewed": false,
+      "user_reviewed": true,
       "covers": [
         {
           "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
@@ -101,7 +101,7 @@
       "source_accession": "0000040545-20-000021",
       "source_document": "ge1q202010-q.htm",
       "quote": "In September 2019, we reduced our ownership interest in Baker Hughes from 50.2 % to 36.8 % and reclassified its results to discontinued operations for all periods presented.",
-      "user_reviewed": false,
+      "user_reviewed": true,
       "covers": [
         {
           "tag": "Revenues",
@@ -118,7 +118,7 @@
       "source_accession": "0000040545-20-000046",
       "source_document": "ge2q202010-q.htm",
       "quote": "In September 2019, we reduced our ownership interest in Baker Hughes from 50.2 % to 36.8 % and reclassified its results to discontinued operations for all periods presented.",
-      "user_reviewed": false,
+      "user_reviewed": true,
       "covers": [
         {
           "tag": "Revenues",
@@ -141,7 +141,7 @@
       "source_accession": "0000040545-20-000009",
       "source_document": "ge10-k2019.htm",
       "quote": "As a result, we have deconsolidated our Baker Hughes segment and reclassified its results to discontinued operations for all periods presented.",
-      "user_reviewed": false,
+      "user_reviewed": true,
       "covers": [
         {
           "tag": "IncomeLossFromContinuingOperationsPerDilutedShare",
@@ -159,7 +159,7 @@
       "source_accession": "0000040545-21-000026",
       "source_document": "ge-20210331.htm",
       "quote": "As a result, we have reclassified GECAS' results to discontinued operations for all periods presented",
-      "user_reviewed": false,
+      "user_reviewed": true,
       "covers": [
         {
           "tag": "Revenues",
@@ -182,7 +182,7 @@
       "source_accession": "0000040545-21-000052",
       "source_document": "ge-20210630.htm",
       "quote": "As a result, we have reclassified GECAS' results to discontinued operations for all periods presented",
-      "user_reviewed": false,
+      "user_reviewed": true,
       "covers": [
         {
           "tag": "Revenues",
@@ -217,7 +217,7 @@
       "source_accession": "0000040545-21-000064",
       "source_document": "ge-20210930.htm",
       "quote": "As a result, we have reclassified GECAS' results to discontinued operations for all periods presented",
-      "user_reviewed": false,
+      "user_reviewed": true,
       "covers": [
         {
           "tag": "Revenues",
@@ -241,7 +241,7 @@
       "source_accession": "0000040545-21-000064",
       "source_document": "ge-20210930.htm",
       "quote": "Reverse Stock Split. In the second quarter of 2021, we announced that we would proceed with the 1-for-8 reverse stock split, as approved by shareholders, and filed an amendment to our certificate of incorporation to effectuate the reverse stock split after the close of trading on July 30, 2021. GE common stock began trading on a split-adjusted basis on August 2, 2021. Effective this quarter, our shares of outstanding common stock and earnings per share calculation have been retroactively restated for all periods presented.",
-      "user_reviewed": false,
+      "user_reviewed": true,
       "covers": [
         {
           "tag": "EarningsPerShareDiluted",
@@ -289,7 +289,7 @@
       "source_accession": "0000040545-22-000008",
       "source_document": "ge-20211231.htm",
       "quote": "DISCONTINUED OPERATIONS primarily comprise our GE Capital Aviation Services (GECAS) business, discontinued in 2021, our mortgage portfolio in Poland, and other trailing assets and liabilities associated with prior dispositions. Results of operations, financial position and cash flows for these businesses are reported as discontinued operations for all periods presented and the notes to the financial statements have been adjusted on a retrospective basis.",
-      "user_reviewed": false,
+      "user_reviewed": true,
       "covers": [
         {
           "tag": "Revenues",
@@ -331,7 +331,7 @@
       "source_accession": "0000040545-22-000008",
       "source_document": "ge-20211231.htm",
       "quote": "Reverse Stock Split. In the second quarter of 2021, we announced that we would proceed with the 1-for-8 reverse stock split, as approved by shareholders, and filed an amendment to our certificate of incorporation to effectuate the reverse stock split after the close of trading on July 30, 2021. GE common stock began trading on a split-adjusted basis on August 2, 2021. Our shares of outstanding common stock and earnings per share calculation have been retroactively restated for all periods presented.",
-      "user_reviewed": false,
+      "user_reviewed": true,
       "covers": [
         {
           "tag": "EarningsPerShareDiluted",
@@ -415,7 +415,7 @@
       "source_accession": "0000313616-21-000045",
       "source_document": "dhr-20201231.htm",
       "quote": "($ in millions)",
-      "user_reviewed": false,
+      "user_reviewed": true,
       "covers": [
         {
           "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
@@ -445,7 +445,7 @@
       "source_accession": "0000313616-21-000059",
       "source_document": "dhr-20210402.htm",
       "quote": "($ in millions, except per share amount)",
-      "user_reviewed": false,
+      "user_reviewed": true,
       "covers": [
         {
           "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
@@ -475,7 +475,7 @@
       "source_accession": "0000313616-21-000098",
       "source_document": "dhr-20210702.htm",
       "quote": "($ in millions, except per share amount)",
-      "user_reviewed": false,
+      "user_reviewed": true,
       "covers": [
         {
           "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",
@@ -523,7 +523,7 @@
       "source_accession": "0000313616-21-000110",
       "source_document": "dhr-20211001.htm",
       "quote": "($ in millions, except per share amount)",
-      "user_reviewed": false,
+      "user_reviewed": true,
       "covers": [
         {
           "tag": "RevenueFromContractWithCustomerExcludingAssessedTax",

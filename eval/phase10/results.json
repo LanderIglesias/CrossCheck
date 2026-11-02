@@ -1,0 +1,514 @@
+{
+  "real": {
+    "rules": {
+      "restatement": {
+        "tp": 27,
+        "fp": 18,
+        "fn": 0,
+        "tn": 18,
+        "precision": 0.6,
+        "recall": 1.0,
+        "precision_ci": [
+          0.4545159420914473,
+          0.7297532055204246
+        ],
+        "recall_ci": [
+          0.8754409628553641,
+          1.0
+        ],
+        "n": 63,
+        "errors": 0
+      },
+      "blind": {
+        "tp": 0,
+        "fp": 3,
+        "fn": 0,
+        "tn": 39,
+        "precision": 0.0,
+        "recall": null,
+        "precision_ci": [
+          0.0,
+          0.5615060804490177
+        ],
+        "recall_ci": [
+          0.0,
+          0.0
+        ],
+        "n": 42,
+        "errors": 0
+      },
+      "combined": {
+        "tp": 27,
+        "fp": 21,
+        "fn": 0,
+        "tn": 57,
+        "precision": 0.5625,
+        "recall": 1.0,
+        "precision_ci": [
+          0.4227477150100165,
+          0.6929894535958907
+        ],
+        "recall_ci": [
+          0.8754409628553641,
+          1.0
+        ],
+        "n": 105,
+        "errors": 0
+      },
+      "by_cause": {
+        "recast_discontinued_ops": {
+          "tp": 27,
+          "fp": 0,
+          "fn": 0,
+          "tn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "precision_ci": [
+            0.8754409628553641,
+            1.0
+          ],
+          "recall_ci": [
+            0.8754409628553641,
+            1.0
+          ],
+          "n": 27,
+          "errors": 0
+        },
+        "rounding": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 18,
+          "precision": null,
+          "recall": null,
+          "precision_ci": [
+            0.0,
+            0.0
+          ],
+          "recall_ci": [
+            0.0,
+            0.0
+          ],
+          "n": 18,
+          "errors": 0
+        },
+        "stock_split": {
+          "tp": 0,
+          "fp": 18,
+          "fn": 0,
+          "tn": 0,
+          "precision": 0.0,
+          "recall": null,
+          "precision_ci": [
+            0.0,
+            0.1758845505823749
+          ],
+          "recall_ci": [
+            0.0,
+            0.0
+          ],
+          "n": 18,
+          "errors": 0
+        }
+      },
+      "root_causes": 16
+    },
+    "llm": {
+      "restatement": {
+        "tp": 27,
+        "fp": 18,
+        "fn": 0,
+        "tn": 18,
+        "precision": 0.6,
+        "recall": 1.0,
+        "precision_ci": [
+          0.4545159420914473,
+          0.7297532055204246
+        ],
+        "recall_ci": [
+          0.8754409628553641,
+          1.0
+        ],
+        "n": 63,
+        "errors": 0
+      },
+      "blind": {
+        "tp": 0,
+        "fp": 1,
+        "fn": 0,
+        "tn": 41,
+        "precision": 0.0,
+        "recall": null,
+        "precision_ci": [
+          0.0,
+          0.7934567085261071
+        ],
+        "recall_ci": [
+          0.0,
+          0.0
+        ],
+        "n": 42,
+        "errors": 0
+      },
+      "combined": {
+        "tp": 27,
+        "fp": 19,
+        "fn": 0,
+        "tn": 59,
+        "precision": 0.5869565217391305,
+        "recall": 1.0,
+        "precision_ci": [
+          0.4433924238701789,
+          0.7171160670289898
+        ],
+        "recall_ci": [
+          0.8754409628553641,
+          1.0
+        ],
+        "n": 105,
+        "errors": 0
+      },
+      "by_cause": {
+        "recast_discontinued_ops": {
+          "tp": 27,
+          "fp": 0,
+          "fn": 0,
+          "tn": 0,
+          "precision": 1.0,
+          "recall": 1.0,
+          "precision_ci": [
+            0.8754409628553641,
+            1.0
+          ],
+          "recall_ci": [
+            0.8754409628553641,
+            1.0
+          ],
+          "n": 27,
+          "errors": 0
+        },
+        "rounding": {
+          "tp": 0,
+          "fp": 0,
+          "fn": 0,
+          "tn": 18,
+          "precision": null,
+          "recall": null,
+          "precision_ci": [
+            0.0,
+            0.0
+          ],
+          "recall_ci": [
+            0.0,
+            0.0
+          ],
+          "n": 18,
+          "errors": 0
+        },
+        "stock_split": {
+          "tp": 0,
+          "fp": 18,
+          "fn": 0,
+          "tn": 0,
+          "precision": 0.0,
+          "recall": null,
+          "precision_ci": [
+            0.0,
+            0.1758845505823749
+          ],
+          "recall_ci": [
+            0.0,
+            0.0
+          ],
+          "n": 18,
+          "errors": 0
+        }
+      },
+      "root_causes": 16
+    }
+  },
+  "injected": {
+    "rules": {
+      "period_prev_quarter": {
+        "n/a": {
+          "n": 29,
+          "detected": 29,
+          "recall": 1.0,
+          "recall_ci": [
+            0.8830264055344442,
+            1.0
+          ],
+          "errors": 0
+        }
+      },
+      "period_ytd": {
+        "n/a": {
+          "n": 20,
+          "detected": 20,
+          "recall": 1.0,
+          "recall_ci": [
+            0.8388698745050667,
+            1.0
+          ],
+          "errors": 0
+        }
+      },
+      "unit_x1000": {
+        "n/a": {
+          "n": 41,
+          "detected": 41,
+          "recall": 1.0,
+          "recall_ci": [
+            0.9143295511310926,
+            1.0
+          ],
+          "errors": 0
+        }
+      },
+      "value": {
+        "0.003": {
+          "n": 41,
+          "detected": 0,
+          "recall": 0.0,
+          "recall_ci": [
+            0.0,
+            0.08567044886890744
+          ],
+          "errors": 0
+        },
+        "0.0049": {
+          "n": 41,
+          "detected": 0,
+          "recall": 0.0,
+          "recall_ci": [
+            0.0,
+            0.08567044886890744
+          ],
+          "errors": 0
+        },
+        "0.0051": {
+          "n": 41,
+          "detected": 41,
+          "recall": 1.0,
+          "recall_ci": [
+            0.9143295511310926,
+            1.0
+          ],
+          "errors": 0
+        },
+        "0.01": {
+          "n": 41,
+          "detected": 41,
+          "recall": 1.0,
+          "recall_ci": [
+            0.9143295511310926,
+            1.0
+          ],
+          "errors": 0
+        },
+        "0.02": {
+          "n": 41,
+          "detected": 41,
+          "recall": 1.0,
+          "recall_ci": [
+            0.9143295511310926,
+            1.0
+          ],
+          "errors": 0
+        },
+        "0.05": {
+          "n": 41,
+          "detected": 41,
+          "recall": 1.0,
+          "recall_ci": [
+            0.9143295511310926,
+            1.0
+          ],
+          "errors": 0
+        },
+        "0.10": {
+          "n": 41,
+          "detected": 41,
+          "recall": 1.0,
+          "recall_ci": [
+            0.9143295511310926,
+            1.0
+          ],
+          "errors": 0
+        }
+      }
+    },
+    "llm": {
+      "period_prev_quarter": {
+        "n/a": {
+          "n": 29,
+          "detected": 29,
+          "recall": 1.0,
+          "recall_ci": [
+            0.8830264055344442,
+            1.0
+          ],
+          "errors": 0
+        }
+      },
+      "period_ytd": {
+        "n/a": {
+          "n": 20,
+          "detected": 20,
+          "recall": 1.0,
+          "recall_ci": [
+            0.8388698745050667,
+            1.0
+          ],
+          "errors": 0
+        }
+      },
+      "unit_x1000": {
+        "n/a": {
+          "n": 41,
+          "detected": 21,
+          "recall": 0.5121951219512195,
+          "recall_ci": [
+            0.36484259315865186,
+            0.657458127600643
+          ],
+          "errors": 0
+        }
+      },
+      "value": {
+        "0.003": {
+          "n": 41,
+          "detected": 21,
+          "recall": 0.5121951219512195,
+          "recall_ci": [
+            0.36484259315865186,
+            0.657458127600643
+          ],
+          "errors": 0
+        },
+        "0.0049": {
+          "n": 41,
+          "detected": 27,
+          "recall": 0.6585365853658537,
+          "recall_ci": [
+            0.5054955435372689,
+            0.7844138263335655
+          ],
+          "errors": 0
+        },
+        "0.0051": {
+          "n": 41,
+          "detected": 27,
+          "recall": 0.6585365853658537,
+          "recall_ci": [
+            0.5054955435372689,
+            0.7844138263335655
+          ],
+          "errors": 0
+        },
+        "0.01": {
+          "n": 41,
+          "detected": 31,
+          "recall": 0.7560975609756098,
+          "recall_ci": [
+            0.606563693455418,
+            0.8617514424897758
+          ],
+          "errors": 0
+        },
+        "0.02": {
+          "n": 41,
+          "detected": 34,
+          "recall": 0.8292682926829268,
+          "recall_ci": [
+            0.6873709004537024,
+            0.914748560047261
+          ],
+          "errors": 0
+        },
+        "0.05": {
+          "n": 41,
+          "detected": 40,
+          "recall": 0.975609756097561,
+          "recall_ci": [
+            0.8740465298832192,
+            0.9956815797292835
+          ],
+          "errors": 0
+        },
+        "0.10": {
+          "n": 41,
+          "detected": 41,
+          "recall": 1.0,
+          "recall_ci": [
+            0.9143295511310926,
+            1.0
+          ],
+          "errors": 0
+        }
+      }
+    }
+  },
+  "false_alarms": {
+    "rules": {
+      "n": 41,
+      "hits": 1,
+      "errors": 0,
+      "rate": 0.024390243902439025,
+      "ci": [
+        0.00431842027071648,
+        0.12595347011678087
+      ]
+    },
+    "llm": {
+      "n": 41,
+      "hits": 1,
+      "errors": 0,
+      "rate": 0.024390243902439025,
+      "ci": [
+        0.00431842027071648,
+        0.12595347011678087
+      ]
+    }
+  },
+  "stability": {
+    "repeats": 5,
+    "errors": 0,
+    "by_origin": {
+      "real": {
+        "pairs": 30,
+        "flip_rate": 0.0,
+        "modal_agreement": 1.0
+      },
+      "injected": {
+        "pairs": 30,
+        "flip_rate": 0.03333333333333333,
+        "modal_agreement": 0.9933333333333334
+      }
+    }
+  },
+  "cost": {
+    "live_calls": 0,
+    "failed_calls": 0,
+    "input_tokens": 0,
+    "output_tokens": 0,
+    "spent_usd": 0.0,
+    "evaluation_cost_usd": 3.050448,
+    "by_source": {
+      "real": {
+        "cost_usd": 0.38064,
+        "detected": 27,
+        "cost_per_detected_inconsistency": 0.014097777777777777
+      },
+      "injected": {
+        "cost_usd": 1.420502,
+        "detected": 291,
+        "cost_per_detected_inconsistency": 0.004881450171821305
+      }
+    },
+    "controls_spent_usd": 0.145626,
+    "stability_spent_usd": 1.10368
+  },
+  "partial": false,
+  "seed": 20261030
+}

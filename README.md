@@ -484,7 +484,8 @@ Phases 4 and 5 scored both checkers on the 49 hand-labeled pairs. Phase 10 asks 
 what do the **rule-based checker** (`consistency/checker.py`, deterministic, `TOLERANCE_PCT = 0.5%`)
 and the **LLM judge** (`consistency/llm_judge.py`, Claude Sonnet 5) do on real hard cases and on
 errors of a known size? Every number below comes from the artifacts in `eval/phase10/` (report,
-results, predictions, candidates and causes), the design spec or the project ledger (seed 20261030, `partial: false`, 0 errors in every cell). Identical judge prompts are
+results, predictions, candidates, causes and `runs.md`) or the design spec (seed 20261030,
+`partial: false`, 0 errors in every cell). Identical judge prompts are
 deduplicated within each source (same cache key counts once), so the n below are distinct prompts. Source A
 (real) and source B (injected) are never combined in one table or one figure. Intervals are 95%
 Wilson intervals. The dashboard shows the same results.
@@ -694,7 +695,7 @@ Rationales from `eval/phase10/predictions.jsonl`, on real cases:
   and GE.
 - **Controls and blind pairs overlap.** 11 of the 39 control prompts are also blind pairs, so the
   judge's false alarm on blind and on controls is the same entry (GE 0.72 vs 0.72); the rules' false
-  alarms follow the same pattern (DHR 4.3 B vs 4,343.1 M). The two are different metrics and are never
+  alarms follow the same pattern (DHR 4.3 B vs 4,343.1 M) but are different prompts, not the same entry. The two are different metrics and are never
   added together; the overlap between sources is kept on purpose, only duplicates inside a source were
   removed.
 - **The 5 $ cap was controlled by hand**, not by the code: `--cap-usd` limits one run, so the

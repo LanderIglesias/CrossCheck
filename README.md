@@ -483,8 +483,8 @@ then reuses `data/raw/llm_cache/` on every subsequent run at no cost. Read-only 
 Phases 4 and 5 scored both checkers on the 49 hand-labeled pairs. Phase 10 asks a harder question:
 what do the **rule-based checker** (`consistency/checker.py`, deterministic, `TOLERANCE_PCT = 0.5%`)
 and the **LLM judge** (`consistency/llm_judge.py`, Claude Sonnet 5) do on real hard cases and on
-errors of a known size? Every number below comes from `eval/phase10/report.md` and
-`eval/phase10/results.json` (seed 20261030, `partial: false`, 0 errors in every cell). Source A
+errors of a known size? Every number below comes from the artifacts in `eval/phase10/` (report,
+results, predictions, candidates and causes), the design spec or the project ledger (seed 20261030, `partial: false`, 0 errors in every cell). Source A
 (real) and source B (injected) are never combined in one table or one figure. Intervals are 95%
 Wilson intervals. The dashboard shows the same results.
 
@@ -529,11 +529,11 @@ mutations, seeded.
 **Stability.** 30 real and 30 injected pairs judged 5 times each (the cache key includes the
 repetition index, so repeats are real calls and the existing cache is untouched).
 
-## Results A: real hard cases
+### Results A: real hard cases
 
 Precision and recall of `discrepant`. 63 restatement pairs plus 42 blind pairs make 105 real pairs.
 
-### rules (16 root causes)
+#### rules (16 root causes)
 
 | Subset | n | Precision | Recall |
 |---|---|---|---|
@@ -544,7 +544,7 @@ Precision and recall of `discrepant`. 63 restatement pairs plus 42 blind pairs m
 | cause: rounding | 18 | n/a | n/a |
 | cause: stock_split | 18 | 0.0% [0.0%, 17.6%] | n/a |
 
-### llm (16 root causes)
+#### llm (16 root causes)
 
 | Subset | n | Precision | Recall |
 |---|---|---|---|
@@ -569,7 +569,7 @@ How to read it:
   3 of 42 pairs for rules, 1 of 42 for the LLM. It is not "0 of (0+1)" and not a meaningless
   artifact; the wide intervals ([0.0%, 56.2%] and [0.0%, 79.3%]) reflect how few pairs were flagged.
 
-## Results B: injected errors
+### Results B: injected errors
 
 Recall of `discrepant`, by type and size. Source B only; no real pairs here.
 
@@ -577,7 +577,7 @@ Recall of `discrepant`, by type and size. Source B only; no real pairs here.
 and 100% from 0.51%. The misses below the tolerance are expected by design, not a finding, and
 "100% recall of the deterministic layer" would be wrong without that qualification.
 
-### rules
+#### rules
 
 | Type | Size | n | Recall | 95% CI |
 |---|---|---|---|---|
@@ -592,7 +592,7 @@ and 100% from 0.51%. The misses below the tolerance are expected by design, not 
 | value | 0.05 | 41 | 100.0% | [91.4%, 100.0%] |
 | value | 0.10 | 41 | 100.0% | [91.4%, 100.0%] |
 
-### llm
+#### llm
 
 | Type | Size | n | Recall | 95% CI |
 |---|---|---|---|---|
@@ -611,16 +611,16 @@ and 100% from 0.51%. The misses below the tolerance are expected by design, not 
 - **LLM:** a smooth curve, 100% on period shifts and at 10%. It flags 51.2% of the 0.3% differences
   and 65.9% of the 0.49% ones, stricter than the 0.5% tolerance written in its own prompt.
 
-### What the judge gets wrong (reported, not patched)
+#### What the judge gets wrong (reported, not patched)
 
 The judge detects only 51.2% of x1000 unit errors (21 of 41). Where it misses, its rationale treats
 the slip as a typo: "after converting units they match exactly, and a unit conversion alone is not
 evidence of discrepancy". The design spec leaves improving the checkers out of scope, and changing
 the prompt would invalidate the live calls already made, so the prompt was not touched. Mitigation
-already in the product: the rule-based checker catches 100% of unit errors, so the two checkers
+already in the product: the rule-based checker caught 41 of 41 injected unit errors (95% CI [91.4%, 100.0%]), so the two checkers
 complement each other.
 
-## False alarms (real `consistent` controls, unmutated)
+### False alarms (real `consistent` controls, unmutated)
 
 | Checker | n | `discrepant` rate | 95% CI |
 |---|---|---|---|
@@ -630,7 +630,7 @@ complement each other.
 One of 41 for each checker. With n = 41 the interval reaches 12.6%, so this is not evidence that the
 false-alarm rate is acceptable for production.
 
-## Judge stability
+### Judge stability
 
 5 repetitions, 0 errors. The judge does not set `temperature` (`llm_judge.py` uses the API default),
 so stability is an empirical result, not a configuration guarantee. Real and injected are reported
@@ -641,7 +641,7 @@ separately.
 | real | 30 | 0.0% | 100.0% |
 | injected | 30 | 3.3% | 99.3% |
 
-## Cost
+### Cost
 
 The evaluation cost is **3.0504 $**: every judge call the evaluation uses, including those served
 from the on-disk cache, at the price paid when they were made (controls 0.1456 $, stability
@@ -657,7 +657,7 @@ was cumulative across runs.
 "Detected" counts the LLM judge's `discrepant` verdicts on gold-`discrepant` pairs of that source;
 the two sources are never mixed.
 
-## What the judge says (qualitative, not scored)
+### What the judge says (qualitative, not scored)
 
 Rationales from `eval/phase10/predictions.jsonl`, on real cases:
 
@@ -673,7 +673,7 @@ Rationales from `eval/phase10/predictions.jsonl`, on real cases:
   are actually consistent." The reasoning reaches the right conclusion and the verdict still says
   `discrepant`.
 
-## Limitations
+### Limitations
 
 - **Small n, wide intervals.** 16 root causes, 63 restatement pairs (pairs that share a cause are not
   independent), 42 blind pairs, 41 base pairs for injected errors. Most intervals span tens of points.
@@ -692,7 +692,7 @@ Rationales from `eval/phase10/predictions.jsonl`, on real cases:
 - **Out of scope, not done:** changes to the checkers, the prompt or the model; split-adjusted
   comparison; a second reviewer for causes and blind labels.
 
-## Reproduce
+### Reproduce
 
 Run from the repo root. Only `eval_phase10_run.py` can spend money.
 

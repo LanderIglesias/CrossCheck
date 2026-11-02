@@ -880,7 +880,7 @@
         '<td class="num">' + prec(b) + '</td><td class="num">' + NA + '</td>'));
     });
     var realHtml = '<div class="block block-real"><h3>Real disagreements</h3>' +
-      '<p class="block-note">Pairs from the filings themselves, with the cause of each difference reviewed by hand. “Flagged” counts pairs the checker called discrepant. Recall is n/a wherever the gold label has no discrepancy, as in the whole blind subset.</p>' +
+      '<p class="block-note">Pairs from the filings themselves, with the cause of each difference reviewed by hand. “Flagged” counts pairs the checker called discrepant. Recall is n/a wherever the gold label has no discrepancy. All ' + r.rules.blind.n + ' blind pairs are consistent, so the blind subset has no true positives to find: its 0% precision means every pair flagged there is a false alarm.</p>' +
       table(['Cause', 'Checker', 'n', 'Flagged', 'Precision (95% CI)', 'Recall (95% CI)'], rows) +
       '<p class="finding-callout"><b>Finding:</b> both checkers flag all ' + r.rules.by_cause.stock_split.n + ' stock-split pairs as discrepant, yet the gold label is ambiguous: the figures are not comparable until adjusted for the split. A split changes the per-share figure without changing the facts, and neither checker knows that.</p>' +
       '<div class="tiles">' + tile('LLM judge: verdict flips on repeat', PCT(st.real.flip_rate), st.real.pairs + ' real pairs, ' + ev.stability.repeats + ' repeats, modal agreement ' + PCT(st.real.modal_agreement)) +
@@ -910,7 +910,7 @@
       tile('LLM cost, injected pairs', '$' + cost.by_source.injected.cost_usd.toFixed(2), '$' + cost.by_source.injected.cost_per_detected_inconsistency.toFixed(3) + ' per detected inconsistency (' + cost.by_source.injected.detected + ')') + '</div></div>';
 
     var faHtml = '<div class="block"><h3>False alarms and total cost</h3>' +
-      '<p class="block-note">False alarms are measured on the unmutated consistent pairs. Total cost counts every judge call, including those served from cache.</p>' +
+      '<p class="block-note">False alarms are measured on the ' + fa.rules.n + ' unmutated consistent base pairs (the ones errors are injected into), a different set from the ' + r.rules.blind.n + ' blind pairs above. Total cost counts every judge call, including those served from cache.</p>' +
       '<div class="tiles">' +
       ['rules', 'llm'].map(function(ck){ return tile('False alarms · ' + NAMES[ck], fa[ck].hits + ' / ' + fa[ck].n, PCT(fa[ck].rate) + CI(fa[ck].ci)); }).join('') +
       tile('Cost of the whole evaluation', '$' + cost.evaluation_cost_usd.toFixed(2), 'all calls, cached ones included') +
